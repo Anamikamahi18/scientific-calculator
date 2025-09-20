@@ -1,7 +1,25 @@
 // Scientific Calculator Logic
+
 const display = document.getElementById('display');
 const history = document.getElementById('history');
 const buttons = document.querySelectorAll('.btn');
+
+// Degree/Radian mode
+let isDegree = true;
+// Add a toggle button dynamically if not present
+let modeBtn = document.getElementById('mode-toggle');
+if (!modeBtn) {
+	modeBtn = document.createElement('button');
+	modeBtn.id = 'mode-toggle';
+	modeBtn.className = 'btn control';
+	modeBtn.style.marginBottom = '10px';
+	modeBtn.textContent = 'DEG';
+	document.querySelector('.calculator').insertBefore(modeBtn, document.querySelector('.calculator-display').nextSibling);
+}
+modeBtn.addEventListener('click', () => {
+	isDegree = !isDegree;
+	modeBtn.textContent = isDegree ? 'DEG' : 'RAD';
+});
 
 let current = '';
 let memory = 0;
@@ -17,16 +35,26 @@ function updateHistory(val) {
 }
 
 function safeEval(expr) {
-	// Replace constants and functions for JS eval
+	// Replace constants
 	expr = expr.replace(/π/g, Math.PI)
-			   .replace(/e/g, Math.E)
-			   .replace(/sin\(/g, 'Math.sin(')
-			   .replace(/cos\(/g, 'Math.cos(')
-			   .replace(/tan\(/g, 'Math.tan(')
-			   .replace(/arcsin\(/g, 'Math.asin(')
-			   .replace(/arccos\(/g, 'Math.acos(')
-			   .replace(/arctan\(/g, 'Math.atan(')
-			   .replace(/log\(/g, 'Math.log10(')
+			   .replace(/e/g, Math.E);
+	// Replace trigonometric functions with degree/radian support
+	expr = expr.replace(/(sin|cos|tan)\(([^\)]+)\)/g, (m, fn, arg) => {
+		if (isDegree) {
+			return `Math.${fn}((${arg})*Math.PI/180)`;
+		} else {
+			return `Math.${fn}(${arg})`;
+		}
+	});
+	expr = expr.replace(/(arcsin|arccos|arctan)\(([^\)]+)\)/g, (m, fn, arg) => {
+		let jsFn = fn.replace('arc', 'a');
+		if (isDegree) {
+			return `(Math.${jsFn}(${arg})*180/Math.PI)`;
+		} else {
+			return `Math.${jsFn}(${arg})`;
+		}
+	});
+	expr = expr.replace(/log\(/g, 'Math.log10(')
 			   .replace(/ln\(/g, 'Math.log(')
 			   .replace(/√\(/g, 'Math.sqrt(')
 			   .replace(/³√\(/g, 'Math.cbrt(');
