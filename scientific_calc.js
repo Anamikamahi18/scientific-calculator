@@ -164,6 +164,10 @@ function handleButton(action) {
 			current += '/100';
 			updateDisplay(current);
 			break;
+		case 'space':
+			current += ' ';
+			updateDisplay(current);
+			break;
 		default:
 			current += action;
 			updateDisplay(current);
