@@ -41,15 +41,15 @@ function safeEval(expr) {
 	// Replace constants
 	expr = expr.replace(/π/g, Math.PI)
 			   .replace(/e/g, Math.E);
-	// Pretty inverse trig tokens to canonical names before reciprocal mapping
-	// Support both sin⁻¹ 1 and sin⁻¹(1) forms
-	expr = expr.replace(/sin⁻¹\s*\(/g, 'arcsin(')
-		.replace(/cos⁻¹\s*\(/g, 'arccos(')
-		.replace(/tan⁻¹\s*\(/g, 'arctan(')
-		.replace(/sin⁻¹/g, 'arcsin')
-		.replace(/cos⁻¹/g, 'arccos')
-		.replace(/tan⁻¹/g, 'arctan');
-	// Pretty reciprocal token to evaluable form
+    // Handle inverse trig special case before general ⁻¹
+    expr = expr.replace(/sin⁻¹\s*\(/g, 'arcsin(')
+	    .replace(/cos⁻¹\s*\(/g, 'arccos(')
+	    .replace(/tan⁻¹\s*\(/g, 'arctan(')
+	    // Also handle no-paren inverse trig cases
+	    .replace(/sin⁻¹\s*(π|e|-?\d*\.?\d+)/g, 'arcsin($1)')
+	    .replace(/cos⁻¹\s*(π|e|-?\d*\.?\d+)/g, 'arccos($1)')
+	    .replace(/tan⁻¹\s*(π|e|-?\d*\.?\d+)/g, 'arctan($1)');
+	// Pretty reciprocal token to evaluable form (after inverse trig)
 	expr = expr.replace(/⁻¹/g, '^(-1)');
 	// Normalize Unicode minus (U+2212) to ASCII hyphen
 	expr = expr.replace(/\u2212/g, '-');
