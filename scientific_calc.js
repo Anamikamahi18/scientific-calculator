@@ -40,15 +40,16 @@ function safeEval(expr) {
 	// Replace constants
 	expr = expr.replace(/π/g, Math.PI)
 			   .replace(/e/g, Math.E);
+
 	// Replace trigonometric functions with degree/radian support
-	expr = expr.replace(/(sin|cos|tan)\(([^\)]+)\)/g, (m, fn, arg) => {
+	expr = expr.replace(/(sin|cos|tan)\s*\(([^\)]+)\)/g, (m, fn, arg) => {
 		if (isDegree) {
 			return `Math.${fn}((${arg})*Math.PI/180)`;
 		} else {
 			return `Math.${fn}(${arg})`;
 		}
 	});
-	expr = expr.replace(/(arcsin|arccos|arctan)\(([^\)]+)\)/g, (m, fn, arg) => {
+	expr = expr.replace(/(arcsin|arccos|arctan)\s*\(([^\)]+)\)/g, (m, fn, arg) => {
 		let jsFn = fn.replace('arc', 'a');
 		if (isDegree) {
 			return `(Math.${jsFn}(${arg})*180/Math.PI)`;
@@ -56,22 +57,25 @@ function safeEval(expr) {
 			return `Math.${jsFn}(${arg})`;
 		}
 	});
-	// Support advanced functions with any argument (not just digits)
-	expr = expr.replace(/log\(/g, 'Math.log10(')
-			   .replace(/ln\(/g, 'Math.log(')
-			   .replace(/√\(([^\)]+)\)/g, (m, arg) => `Math.sqrt(${arg})`)
-			   .replace(/³√\(([^\)]+)\)/g, (m, arg) => `Math.cbrt(${arg})`);
-	// Factorial: support numbers, decimals, and parenthesized expressions
-	expr = expr.replace(/([\d\.]+|\([^\)]+\))!/g, (m, n) => `factorial(${n})`);
+
+	// Advanced functions: √, ³√
+	expr = expr.replace(/√\s*\(([^\)]+)\)/g, (m, arg) => `Math.sqrt(${arg})`);
+	expr = expr.replace(/³√\s*\(([^\)]+)\)/g, (m, arg) => `Math.cbrt(${arg})`);
+
+	// log, ln
+	expr = expr.replace(/log\s*\(/g, 'Math.log10(')
+			   .replace(/ln\s*\(/g, 'Math.log(');
+
+	// Factorial
+	expr = expr.replace(/(\d+)!/g, (m, n) => factorial(Number(n)));
 	// nth root: nthroot(a, b) => Math.pow(a, 1/b)
 	expr = expr.replace(/nthroot\(([^,]+),([^\)]+)\)/g, (m, a, b) => `Math.pow(${a},1/${b})`);
-	// Powers: support numbers, decimals, and parenthesized expressions
-	expr = expr.replace(/([\d\.]+|\([^\)]+\))\^([\d\.]+|\([^\)]+\))/g, (m, a, b) => `Math.pow(${a},${b})`);
+	// Powers
+	expr = expr.replace(/(\d+)\^([\d]+)/g, (m, a, b) => `Math.pow(${a},${b})`);
 	return expr;
 }
 
 function factorial(n) {
-	n = Number(eval(n));
 	if (n < 0) return NaN;
 	if (n === 0 || n === 1) return 1;
 	let res = 1;
