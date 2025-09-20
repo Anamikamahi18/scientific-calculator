@@ -10,9 +10,16 @@ let isDegree = true;
 const degRadio = document.getElementById('deg-radio');
 const radRadio = document.getElementById('rad-radio');
 if (degRadio && radRadio) {
-    isDegree = degRadio.checked;
-    degRadio.addEventListener('change', () => { if (degRadio.checked) isDegree = true; });
-    radRadio.addEventListener('change', () => { if (radRadio.checked) isDegree = false; });
+	isDegree = degRadio.checked;
+	const syncRadios = () => { degRadio.checked = isDegree; radRadio.checked = !isDegree; };
+	degRadio.addEventListener('change', () => {
+		if (!powered) { syncRadios(); return; }
+		if (degRadio.checked) isDegree = true;
+	});
+	radRadio.addEventListener('change', () => {
+		if (!powered) { syncRadios(); return; }
+		if (radRadio.checked) isDegree = false;
+	});
 }
 
 let current = '';
@@ -22,7 +29,8 @@ let error = false;
 let powered = true;
 
 function updateDisplay(val) {
-	display.textContent = val || '0';
+	if (!powered) { display.textContent = ''; return; }
+	display.textContent = (val === '' || val == null) ? '0' : String(val);
 }
 
 function updateHistory(val) {
@@ -94,14 +102,10 @@ function handleButton(action) {
 	switch(action) {
 		case 'power': {
 			powered = !powered;
-			// Toggle all buttons except the power button
-			buttons.forEach(b => {
-				if (b.getAttribute('data-action') !== 'power') b.disabled = !powered;
-			});
 			if (!powered) {
 				current = '';
-				updateDisplay('0');
 				updateHistory('');
+				updateDisplay(''); // blank while off
 			} else {
 				updateDisplay(current || '0');
 			}
@@ -240,7 +244,4 @@ document.addEventListener('keydown', e => {
 	}
 });
 
-// Initialize disabled state for buttons if needed
-if (!powered) {
-	buttons.forEach(b => { if (b.getAttribute('data-action') !== 'power') b.disabled = true; });
-}
+// No disabling of buttons; interactions are ignored while powered off.
