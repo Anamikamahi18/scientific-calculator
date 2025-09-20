@@ -66,10 +66,7 @@ body {
 	grid-template-columns: repeat(4, 1fr);
 	gap: 10px;
 }
-.btn.wide {
-	grid-column: 1 / span 2;
-	justify-self: center;
-}
+
 
 .btn {
 	font-size: 1.1rem;
@@ -99,6 +96,8 @@ body {
 	background: #c7eaf7;
 	color: #1565c0;
 	font-weight: bold;
+    grid-column: 1 / span 4;
+	justify-self: center;
 }
 .btn.adv, .btn.constant, .btn.paren {
 	background: #e0f7fa;
