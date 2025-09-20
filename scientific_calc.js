@@ -37,6 +37,8 @@ function updateHistory(val) {
 }
 
 function safeEval(expr) {
+	// nth root: nthroot(a, b) => Math.pow(a, 1/b)
+	expr = expr.replace(/nthroot\(([^,]+),([^)]+)\)/g, (m, a, b) => `Math.pow(${a},1/${b})`);
 	// Replace constants
 	expr = expr.replace(/π/g, Math.PI)
 			   .replace(/e/g, Math.E);
@@ -76,6 +78,21 @@ function factorial(n) {
 }
 
 function handleButton(action) {
+	switch(action) {
+		case 'inv':
+			current += '^-1';
+			updateDisplay(current);
+			break;
+		case 'nthroot':
+			current += 'nthroot('; // expects nthroot(a,b)
+			updateDisplay(current);
+			break;
+		case 'backspace':
+			current = current.slice(0, -1);
+			updateDisplay(current);
+			break;
+	// nth root: nthroot(a, b) => Math.pow(a, 1/b)
+	expr = expr.replace(/nthroot\(([^,]+),([^)]+)\)/g, (m, a, b) => `Math.pow(${a},1/${b})`);
 	if (error) {
 		current = '';
 		error = false;
@@ -162,10 +179,6 @@ function handleButton(action) {
 			break;
 		case 'percent':
 			current += '/100';
-			updateDisplay(current);
-			break;
-		case 'space':
-			current += ' ';
 			updateDisplay(current);
 			break;
 		default:

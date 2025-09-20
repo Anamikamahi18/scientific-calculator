@@ -67,9 +67,7 @@ body {
 	gap: 10px;
 }
 
-.span-two {
-	grid-column: span 3;
-}
+
 
 .btn {
 	font-size: 1.1rem;
