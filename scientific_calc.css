@@ -67,7 +67,7 @@ body {
 	gap: 10px;
 }
 .center-eq {
-	grid-column: 2 / span 2;
+	grid-column: span 2;
 	justify-self: center;
 }
 
