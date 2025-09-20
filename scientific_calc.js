@@ -27,7 +27,33 @@ let current = '';
 let memory = 0;
 let lastResult = '';
 let error = false;
-let awaitingNthRootN = false;
+let awaitingNIndex = false; // When true, next digit(s) fill the n in ⁿ√x
+
+function extractTrailingOperand(str) {
+	if (!str) return null;
+	const end = str.length - 1;
+	// Case: ends with a parenthesized expression, grab the matching pair
+	if (str[end] === ')') {
+		let depth = 0;
+		for (let i = end; i >= 0; i--) {
+			if (str[i] === ')') depth++;
+			else if (str[i] === '(') {
+				depth--;
+				if (depth === 0) {
+					return { operand: str.slice(i, end + 1), start: i };
+				}
+			}
+		}
+		return null;
+	}
+	// Case: numbers, constants π/e, possibly followed by factorials
+	const m = str.match(/((π|e|-?\d*\.?\d+))(?:!+)?$/);
+	if (m) {
+		const operand = m[0];
+		return { operand, start: str.length - operand.length };
+	}
+	return null;
+}
 
 function updateDisplay(val) {
 	display.textContent = val || '0';
@@ -101,19 +127,25 @@ function handleButton(action) {
 		error = false;
 		updateDisplay(current);
 	}
+	const isDigitOrDot = /^[0-9.]$/.test(action);
+	if (action !== 'nthroot' && !isDigitOrDot) {
+		awaitingNIndex = false;
+	}
 	switch(action) {
 		case 'AC':
 			current = '';
 			lastResult = '';
 			updateDisplay(current);
 			updateHistory('');
-				awaitingNthRootN = false;
-				break;
+			awaitingNIndex = false;
+			break;
 		case 'C':
 			current = current.slice(0, -1);
 			updateDisplay(current);
+			// If we backspaced, be conservative and stop awaiting n
+			awaitingNIndex = false;
 			break;
-			case '=':
+		case '=':
 			try {
 				let expr = safeEval(current);
 				let result = eval(expr);
@@ -126,8 +158,8 @@ function handleButton(action) {
 				updateDisplay('Error');
 				error = true;
 			}
-				awaitingNthRootN = false;
-				break;
+			awaitingNIndex = false;
+			break;
 		case 'MC':
 			memory = 0;
 			break;
@@ -190,37 +222,32 @@ function handleButton(action) {
 			current += '/100';
 			updateDisplay(current);
 			break;
-			case 'nthroot':
-				// Wrap the last operand with ⁿ√
-				{
-					const m = current.match(/(\([^()]*\)|-?\d*\.?\d+)$/);
-					if (m) {
-						const operand = m[0];
-						current = current.slice(0, -operand.length) + 'ⁿ√' + operand;
-					} else {
-						current += 'ⁿ√';
-					}
-					awaitingNthRootN = true;
-					updateDisplay(current);
-				}
-				break;    
+		case 'nthroot': {
+			const tail = extractTrailingOperand(current);
+			if (tail) {
+				current = current.slice(0, tail.start) + 'ⁿ√' + tail.operand;
+				awaitingNIndex = true; // We have x; next digits should fill n
+			} else {
+				current += 'ⁿ√';
+				// No operand yet; next digits are radicand (do not await n)
+				awaitingNIndex = false;
+			}
+			updateDisplay(current);
+			break; }
 		default:
-				// If we're awaiting the nth-root degree and a digit or dot is pressed,
-				// insert it immediately before the last ⁿ√ token.
-				if (awaitingNthRootN && (/^\d$/.test(action) || action === '.')) {
-					const idx = current.lastIndexOf('ⁿ√');
-					if (idx !== -1) {
-						current = current.slice(0, idx) + action + current.slice(idx);
-						updateDisplay(current);
-						break;
-					}
+			if (isDigitOrDot && awaitingNIndex) {
+				const idx = current.lastIndexOf('ⁿ√');
+				if (idx !== -1) {
+					current = current.slice(0, idx) + action + current.slice(idx);
+					updateDisplay(current);
+					break;
+				} else {
+					// Fallback if placeholder missing
+					awaitingNIndex = false;
 				}
-				// Any non-digit input ends the nth-degree capture
-				if (!/^\d$/.test(action) && action !== '.') {
-					awaitingNthRootN = false;
-				}
-				current += action;
-				updateDisplay(current);
+			}
+			current += action;
+			updateDisplay(current);
 	}
 }
 
