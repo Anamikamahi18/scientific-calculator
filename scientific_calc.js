@@ -21,7 +21,6 @@ if (!modeBtn) {
 modeBtn.addEventListener('click', () => {
 	isDegree = !isDegree;
 	modeBtn.textContent = isDegree ? 'DEG' : 'RAD';
-
 });
 
 let current = '';
@@ -65,9 +64,6 @@ function safeEval(expr) {
 	expr = expr.replace(/(\d+)!/g, (m, n) => factorial(Number(n)));
 	// Powers
 	expr = expr.replace(/(\d+)\^([\d]+)/g, (m, a, b) => `Math.pow(${a},${b})`);
-
-    // nth root: n√(x) => Math.pow(x, 1/n)
-	expr = expr.replace(/(\d+)√\(([^)]*)\)/g, (m, n, x) => `Math.pow(${x},1/${n})`);
 	return expr;
 }
 
@@ -86,40 +82,6 @@ function handleButton(action) {
 		updateDisplay(current);
 	}
 	switch(action) {
-		case 'inv':
-			// x^-1 (reciprocal)
-			current += '^-1';
-			updateDisplay(current);
-			break;
-		case 'nthroot':
-			// nth root: expects format n√(x), e.g., 3√(8)
-			current += '√(';
-			updateDisplay(current);
-			break;
-		case 'backspace':
-			current = current.trimEnd();
-			if (current.length > 0) {
-				current = current.slice(0, -1);
-			}
-			updateDisplay(current);
-			break;
-		case 'inv':
-			// x^-1 (reciprocal)
-			current += '^-1';
-			updateDisplay(current);
-			break;
-		case 'nthroot':
-			// nth root: expects format n√x, e.g., 3√8
-			current += '√(';
-			updateDisplay(current);
-			break;
-		case 'backspace':
-			current = current.trimEnd();
-			if (current.length > 0) {
-				current = current.slice(0, -1);
-			}
-			updateDisplay(current);
-			break;
 		case 'AC':
 			current = '';
 			lastResult = '';
@@ -194,12 +156,24 @@ function handleButton(action) {
 			current += '^';
 			updateDisplay(current);
 			break;
+        case 'inv':
+			current += '^-1';
+			updateDisplay(current);
+			break;
 		case 'fact':
 			current += '!';
 			updateDisplay(current);
 			break;
 		case 'percent':
 			current += '/100';
+			updateDisplay(current);
+			break;
+        case 'nthroot':
+			current += '^(1/)'; // User should complete the n value, e.g., x^(1/3)
+			updateDisplay(current);
+			break;    
+        case 'backspace':
+			current = current.slice(0, -1);
 			updateDisplay(current);
 			break;
 		default:
