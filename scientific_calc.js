@@ -165,19 +165,19 @@ function handleButton(action) {
 			break;
 		case 'sin': case 'cos': case 'tan':
 		case 'log': case 'ln':
-			current += action;
+			current += action + ' ';
 			updateDisplay(current);
 			break;
 		case 'arcsin':
-			current += 'sin⁻¹';
+			current += 'sin⁻¹ ';
 			updateDisplay(current);
 			break;
 		case 'arccos':
-			current += 'cos⁻¹';
+			current += 'cos⁻¹ ';
 			updateDisplay(current);
 			break;
 		case 'arctan':
-			current += 'tan⁻¹';
+			current += 'tan⁻¹ ';
 			updateDisplay(current);
 			break;
 		case 'sqrt':
