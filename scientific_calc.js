@@ -56,11 +56,11 @@ function safeEval(expr) {
 			return `Math.${jsFn}(${arg})`;
 		}
 	});
-	// Fix for √( and ³√( to support nested/complex expressions
-	expr = expr.replace(/√\(([^\)]+)\)/g, (m, arg) => `Math.sqrt(${arg})`);
-	expr = expr.replace(/³√\(([^\)]+)\)/g, (m, arg) => `Math.cbrt(${arg})`);
+	// Support advanced functions with any argument (not just digits)
 	expr = expr.replace(/log\(/g, 'Math.log10(')
-			   .replace(/ln\(/g, 'Math.log(');
+			   .replace(/ln\(/g, 'Math.log(')
+			   .replace(/√\(([^\)]+)\)/g, (m, arg) => `Math.sqrt(${arg})`)
+			   .replace(/³√\(([^\)]+)\)/g, (m, arg) => `Math.cbrt(${arg})`);
 	// Factorial
 	expr = expr.replace(/(\d+)!/g, (m, n) => factorial(Number(n)));
 	// nth root: nthroot(a, b) => Math.pow(a, 1/b)
