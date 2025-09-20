@@ -187,8 +187,25 @@ function handleButton(action) {
 			current += '/100';
 			updateDisplay(current);
 			break;
-        case 'nthroot':
-			current += 'ⁿ√';
+		case 'nthroot':
+			try {
+				const input = prompt('Enter n for nth root (e.g., 3 for cube root):');
+				if (input !== null) {
+					const nStr = String(input).trim();
+					if (/^-?\d*\.?\d+$/.test(nStr)) {
+						current += nStr + 'ⁿ√';
+					} else if (nStr.length > 0) {
+						// Allow parenthesized expressions like (1/3)
+						current += '(' + nStr + ')ⁿ√';
+					} else {
+						current += 'ⁿ√';
+					}
+				} else {
+					current += 'ⁿ√';
+				}
+			} catch {
+				current += 'ⁿ√';
+			}
 			updateDisplay(current);
 			break;    
 		default:
