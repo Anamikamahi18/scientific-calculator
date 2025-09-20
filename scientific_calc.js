@@ -4,12 +4,12 @@ const display = document.getElementById('display');
 const history = document.getElementById('history');
 const buttons = document.querySelectorAll('.btn');
 
-// Degree/Radian mode
+// Degree/Radian mode via radio buttons
 let isDegree = true;
 const degRadio = document.getElementById('deg-radio');
 const radRadio = document.getElementById('rad-radio');
 if (degRadio && radRadio) {
-    degRadio.checked = true;
+    isDegree = degRadio.checked;
     degRadio.addEventListener('change', () => { if (degRadio.checked) isDegree = true; });
     radRadio.addEventListener('change', () => { if (radRadio.checked) isDegree = false; });
 }

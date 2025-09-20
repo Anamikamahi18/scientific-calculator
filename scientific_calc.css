@@ -1,23 +1,15 @@
-/* Angle mode radio group */
 .mode-group {
-	grid-column: span 2;
-	display: grid;
-	grid-template-columns: repeat(2, 1fr);
-	gap: 8px;
+	display: flex;
+	justify-content: flex-end;
+	gap: 12px;
+	margin: 6px 0 2px 0;
+	color: #444;
 }
 .mode-group label {
-	display: flex;
+	display: inline-flex;
 	align-items: center;
-	justify-content: center;
 	gap: 6px;
-	background: #f8d7da;
-	color: #b71c1c;
-	border-radius: 8px;
-	padding: 10px 0;
-	font-weight: 600;
-}
-.mode-group input[type="radio"] {
-	accent-color: #b71c1c;
+	font-size: 0.95rem;
 }
 body {
 	background: #f4f6fb;
