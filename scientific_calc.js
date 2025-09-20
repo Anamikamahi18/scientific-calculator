@@ -41,18 +41,14 @@ function safeEval(expr) {
 	// Replace constants
 	expr = expr.replace(/π/g, Math.PI)
 			   .replace(/e/g, Math.E);
-	// Pretty inverse trig tokens to canonical names before reciprocal mapping
-	expr = expr.replace(/sin⁻¹\(/g, 'arcsin(')
-		   .replace(/cos⁻¹\(/g, 'arccos(')
-		   .replace(/tan⁻¹\(/g, 'arctan(');
-	// Also support ASCII-typed inverse trig: sin^-1( and sin^(-1)( (and cos/tan)
-	expr = expr
-		.replace(/sin\^\s*\(-?\s*1\s*\)\s*\(/g, 'arcsin(')
-		.replace(/cos\^\s*\(-?\s*1\s*\)\s*\(/g, 'arccos(')
-		.replace(/tan\^\s*\(-?\s*1\s*\)\s*\(/g, 'arctan(')
-		.replace(/sin\^\s*-?\s*1\s*\(/g, 'arcsin(')
-		.replace(/cos\^\s*-?\s*1\s*\(/g, 'arccos(')
-		.replace(/tan\^\s*-?\s*1\s*\(/g, 'arctan(');
+    // Pretty inverse trig tokens to canonical names before reciprocal mapping
+    expr = expr.replace(/sin⁻¹\s*\(/g, 'arcsin(')
+	    .replace(/cos⁻¹\s*\(/g, 'arccos(')
+	    .replace(/tan⁻¹\s*\(/g, 'arctan(')
+	    // Also support no-parentheses: sin⁻¹ x -> arcsin(x)
+	    .replace(/sin⁻¹\s*(-?[\d.]+|Math\.PI|Math\.E)/g, 'arcsin($1)')
+	    .replace(/cos⁻¹\s*(-?[\d.]+|Math\.PI|Math\.E)/g, 'arccos($1)')
+	    .replace(/tan⁻¹\s*(-?[\d.]+|Math\.PI|Math\.E)/g, 'arctan($1)');
 	// Pretty reciprocal token to evaluable form
 	expr = expr.replace(/⁻¹/g, '^(-1)');
 	// Normalize Unicode minus (U+2212) to ASCII hyphen
