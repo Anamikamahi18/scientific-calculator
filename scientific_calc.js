@@ -27,6 +27,7 @@ let current = '';
 let memory = 0;
 let lastResult = '';
 let error = false;
+let awaitingNthRootN = false;
 
 function updateDisplay(val) {
 	display.textContent = val || '0';
@@ -100,29 +101,19 @@ function handleButton(action) {
 		error = false;
 		updateDisplay(current);
 	}
-	// If user is entering numbers right after an nth-root token, treat them as the order n
-	if (/^\d$/.test(action) || action === '.') {
-		const nthMatch = current.match(/(-?\d*\.?\d*)ⁿ√$/);
-		if (nthMatch) {
-			const existing = nthMatch[1] || '';
-			const updatedN = existing + action;
-			current = current.slice(0, -nthMatch[0].length) + updatedN + 'ⁿ√';
-			updateDisplay(current);
-			return;
-		}
-	}
 	switch(action) {
 		case 'AC':
 			current = '';
 			lastResult = '';
 			updateDisplay(current);
 			updateHistory('');
-			break;
+				awaitingNthRootN = false;
+				break;
 		case 'C':
 			current = current.slice(0, -1);
 			updateDisplay(current);
 			break;
-		case '=':
+			case '=':
 			try {
 				let expr = safeEval(current);
 				let result = eval(expr);
@@ -135,7 +126,8 @@ function handleButton(action) {
 				updateDisplay('Error');
 				error = true;
 			}
-			break;
+				awaitingNthRootN = false;
+				break;
 		case 'MC':
 			memory = 0;
 			break;
@@ -198,13 +190,37 @@ function handleButton(action) {
 			current += '/100';
 			updateDisplay(current);
 			break;
-        case 'nthroot':
-			current += 'ⁿ√';
-			updateDisplay(current);
-			break;    
+			case 'nthroot':
+				// Wrap the last operand with ⁿ√
+				{
+					const m = current.match(/(\([^()]*\)|-?\d*\.?\d+)$/);
+					if (m) {
+						const operand = m[0];
+						current = current.slice(0, -operand.length) + 'ⁿ√' + operand;
+					} else {
+						current += 'ⁿ√';
+					}
+					awaitingNthRootN = true;
+					updateDisplay(current);
+				}
+				break;    
 		default:
-			current += action;
-			updateDisplay(current);
+				// If we're awaiting the nth-root degree and a digit or dot is pressed,
+				// insert it immediately before the last ⁿ√ token.
+				if (awaitingNthRootN && (/^\d$/.test(action) || action === '.')) {
+					const idx = current.lastIndexOf('ⁿ√');
+					if (idx !== -1) {
+						current = current.slice(0, idx) + action + current.slice(idx);
+						updateDisplay(current);
+						break;
+					}
+				}
+				// Any non-digit input ends the nth-degree capture
+				if (!/^\d$/.test(action) && action !== '.') {
+					awaitingNthRootN = false;
+				}
+				current += action;
+				updateDisplay(current);
 	}
 }
 
