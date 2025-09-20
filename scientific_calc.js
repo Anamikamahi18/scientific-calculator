@@ -169,13 +169,9 @@ function handleButton(action) {
 			updateDisplay(current);
 			break;
         case 'nthroot':
-			current += '^(1/)'; // User should complete the n value, e.g., x^(1/3)
+			current += '^(1/'; // User should complete the n value, e.g., x^(1/3)
 			updateDisplay(current);
 			break;    
-        case 'backspace':
-			current = current.slice(0, -1);
-			updateDisplay(current);
-			break;
 		default:
 			current += action;
 			updateDisplay(current);
