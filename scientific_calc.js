@@ -62,6 +62,13 @@ function safeEval(expr) {
 			return `Math.${jsFn}(${arg})`;
 		}
 	});
+	// Nth-root parsing: nⁿ√x => Math.pow(x,1/n)
+	// Supports n as number/decimal/negatives or parenthesized; x as number or parenthesized expr
+	expr = expr.replace(/(\([^()]+\)|-?\d*\.?\d+)ⁿ√\s*(\([^()]*\)|-?\d*\.?\d+)/g, (m, n, x) => {
+		return `Math.pow(${x},1/${n})`;
+	});
+	// If user typed just ⁿ√x without a leading n, treat as square root by default
+	expr = expr.replace(/ⁿ√\s*(\([^()]*\)|-?\d*\.?\d+)/g, (m, x) => `Math.sqrt(${x})`);
 	// Fix for cbrt and sqrt with possible whitespace or nested expressions
 	expr = expr.replace(/³√\s*(\([^)]*\)|\d+(\.\d+)?)/g, (m, arg) => `Math.cbrt(${arg})`);
 	expr = expr.replace(/√\s*(\([^)]*\)|\d+(\.\d+)?)/g, (m, arg) => `Math.sqrt(${arg})`);
@@ -181,7 +188,7 @@ function handleButton(action) {
 			updateDisplay(current);
 			break;
         case 'nthroot':
-			current += '^(1/'; // User should complete the n value, e.g., x^(1/3)
+			current += 'ⁿ√';
 			updateDisplay(current);
 			break;    
 		default:
