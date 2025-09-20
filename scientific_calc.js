@@ -100,6 +100,17 @@ function handleButton(action) {
 		error = false;
 		updateDisplay(current);
 	}
+	// If user is entering numbers right after an nth-root token, treat them as the order n
+	if (/^\d$/.test(action) || action === '.') {
+		const nthMatch = current.match(/(-?\d*\.?\d*)ⁿ√$/);
+		if (nthMatch) {
+			const existing = nthMatch[1] || '';
+			const updatedN = existing + action;
+			current = current.slice(0, -nthMatch[0].length) + updatedN + 'ⁿ√';
+			updateDisplay(current);
+			return;
+		}
+	}
 	switch(action) {
 		case 'AC':
 			current = '';
@@ -187,25 +198,8 @@ function handleButton(action) {
 			current += '/100';
 			updateDisplay(current);
 			break;
-		case 'nthroot':
-			try {
-				const input = prompt('Enter n for nth root (e.g., 3 for cube root):');
-				if (input !== null) {
-					const nStr = String(input).trim();
-					if (/^-?\d*\.?\d+$/.test(nStr)) {
-						current += nStr + 'ⁿ√';
-					} else if (nStr.length > 0) {
-						// Allow parenthesized expressions like (1/3)
-						current += '(' + nStr + ')ⁿ√';
-					} else {
-						current += 'ⁿ√';
-					}
-				} else {
-					current += 'ⁿ√';
-				}
-			} catch {
-				current += 'ⁿ√';
-			}
+        case 'nthroot':
+			current += 'ⁿ√';
 			updateDisplay(current);
 			break;    
 		default:
