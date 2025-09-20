@@ -62,9 +62,9 @@ function safeEval(expr) {
 			return `Math.${jsFn}(${arg})`;
 		}
 	});
-	// Fix for sqrt and cbrt with possible whitespace or nested expressions
-	expr = expr.replace(/√\s*(\([^)]*\)|\d+(\.\d+)?)/g, (m, arg) => `Math.sqrt(${arg})`);
+	// Fix for cbrt and sqrt with possible whitespace or nested expressions
 	expr = expr.replace(/³√\s*(\([^)]*\)|\d+(\.\d+)?)/g, (m, arg) => `Math.cbrt(${arg})`);
+	expr = expr.replace(/√\s*(\([^)]*\)|\d+(\.\d+)?)/g, (m, arg) => `Math.sqrt(${arg})`);
 	// Log replacements
 	expr = expr.replace(/log\(/g, 'Math.log10(');
 	expr = expr.replace(/ln\(/g, 'Math.log(');
