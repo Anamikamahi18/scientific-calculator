@@ -96,8 +96,6 @@ body {
 	background: #c7eaf7;
 	color: #1565c0;
 	font-weight: bold;
-    grid-column: 1 / span 4;
-	justify-self: center;
 }
 .btn.adv, .btn.constant, .btn.paren {
 	background: #e0f7fa;
