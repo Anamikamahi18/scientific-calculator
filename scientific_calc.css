@@ -1,3 +1,26 @@
+.calculator-toggle {
+	width: 100%;
+	display: flex;
+	justify-content: flex-end;
+	margin-bottom: 8px;
+}
+
+#mode-toggle {
+	width: 100%;
+	font-size: 1.1rem;
+	padding: 10px 0;
+	border: none;
+	border-radius: 8px;
+	background: #f8d7da;
+	color: #b71c1c;
+	font-weight: bold;
+	margin: 0;
+	box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+	transition: background 0.2s;
+}
+#mode-toggle:active, #mode-toggle:focus {
+	background: #f1b0b7;
+}
 body {
 	background: #f4f6fb;
 	font-family: 'Segoe UI', Arial, sans-serif;
@@ -23,7 +46,7 @@ body {
 	padding: 24px 16px 16px 16px;
 	display: flex;
 	flex-direction: column;
-	gap: 12px;
+	gap: 8px;
 }
 
 .calculator-display {

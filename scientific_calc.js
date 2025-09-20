@@ -9,12 +9,14 @@ let isDegree = true;
 // Add a toggle button dynamically if not present
 let modeBtn = document.getElementById('mode-toggle');
 if (!modeBtn) {
+	// Create a wrapper for better alignment
+	const toggleWrapper = document.createElement('div');
+	toggleWrapper.className = 'calculator-toggle';
 	modeBtn = document.createElement('button');
 	modeBtn.id = 'mode-toggle';
-	modeBtn.className = 'btn control';
-	modeBtn.style.marginBottom = '10px';
 	modeBtn.textContent = 'DEG';
-	document.querySelector('.calculator').insertBefore(modeBtn, document.querySelector('.calculator-display').nextSibling);
+	toggleWrapper.appendChild(modeBtn);
+	document.querySelector('.calculator').insertBefore(toggleWrapper, document.querySelector('.calculator-display').nextSibling);
 }
 modeBtn.addEventListener('click', () => {
 	isDegree = !isDegree;
