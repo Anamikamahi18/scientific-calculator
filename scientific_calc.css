@@ -66,6 +66,9 @@ body {
 	grid-template-columns: repeat(4, 1fr);
 	gap: 10px;
 }
+.span-two {
+	grid-column: span 2;
+}
 
 .btn {
 	font-size: 1.1rem;
