@@ -110,6 +110,7 @@ function handleButton(action) {
 				current = '';
 				updateHistory('');
 				updateDisplay(''); // blank while off
+				// Don't clear lastResult - keep it for Ans button
 			} else {
 				updateDisplay(current || '0');
 			}
@@ -117,7 +118,7 @@ function handleButton(action) {
 		}
 		case 'AC':
 			current = '';
-			lastResult = '';
+			// Don't clear lastResult - keep it for Ans button
 			updateDisplay(current);
 			updateHistory('');
 			break;
@@ -220,7 +221,8 @@ function handleButton(action) {
 			break;
 		}
 		case 'ans': {
-			const ansVal = (lastResult === '' ? '0' : String(lastResult));
+			if (lastResult === '') return; // Do nothing if no previous result
+			const ansVal = String(lastResult);
 			const needsMul = current && /[\d)πe!]$/.test(current);
 			current += (needsMul ? '*' : '') + ansVal;
 			updateDisplay(current);
