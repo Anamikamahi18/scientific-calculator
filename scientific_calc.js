@@ -62,8 +62,6 @@ function safeEval(expr) {
 	expr = expr.replace(/ln\(/g, 'Math.log(');
 	// Factorial
 	expr = expr.replace(/(\d+)!/g, (m, n) => factorial(Number(n)));
-	// nth root: nthroot(a, b) => Math.pow(a, 1/b)
-	expr = expr.replace(/nthroot\(([^,]+),([^\)]+)\)/g, (m, a, b) => `Math.pow(${a},1/${b})`);
 	// Powers
 	expr = expr.replace(/(\d+)\^([\d]+)/g, (m, a, b) => `Math.pow(${a},${b})`);
 	return expr;
@@ -144,10 +142,6 @@ function handleButton(action) {
 			break;
 		case 'cbrt':
 			current += '³√';
-			updateDisplay(current);
-			break;
-		case 'nthroot':
-			current += 'nthroot('; // expects nthroot(a,b)
 			updateDisplay(current);
 			break;
 		case 'pow2':
