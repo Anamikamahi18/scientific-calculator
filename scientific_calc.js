@@ -40,6 +40,8 @@ function safeEval(expr) {
 	// Replace constants
 	expr = expr.replace(/π/g, Math.PI)
 			   .replace(/e/g, Math.E);
+	// Pretty reciprocal token to evaluable form
+	expr = expr.replace(/⁻¹/g, '^(-1)');
 	// Normalize Unicode minus (U+2212) to ASCII hyphen
 	expr = expr.replace(/\u2212/g, '-');
 	// Remove all whitespace to avoid parsing issues (e.g., 2 ^ ( -1 ))
@@ -166,8 +168,8 @@ function handleButton(action) {
 			current += '^';
 			updateDisplay(current);
 			break;
-        case 'inv':
-			current += '^(-1)';
+		case 'inv':
+			current += '⁻¹';
 			updateDisplay(current);
 			break;
 		case 'fact':
