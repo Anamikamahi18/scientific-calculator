@@ -135,8 +135,16 @@ function handleButton(action) {
 			updateDisplay(current);
 			break;
 		case 'sin': case 'cos': case 'tan': case 'arcsin': case 'arccos': case 'arctan':
-		case 'log': case 'ln': case 'sqrt': case 'cbrt':
+		case 'log': case 'ln':
 			current += action + '(';
+			updateDisplay(current);
+			break;
+		case 'sqrt':
+			current += '√(';
+			updateDisplay(current);
+			break;
+		case 'cbrt':
+			current += '³√(';
 			updateDisplay(current);
 			break;
 		case 'nthroot':
