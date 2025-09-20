@@ -28,23 +28,8 @@ let memory = 0;
 let lastResult = '';
 let error = false;
 
-// Pretty-print helpers for display only (does not affect evaluation)
-const _superscripts = { '0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹','-':'⁻' };
-function toSuperscriptDigits(s) {
-	return s.split('').map(ch => _superscripts[ch] || ch).join('');
-}
-function prettify(expr) {
-	let out = expr;
-	// Convert patterns like 3ⁿ√ to ³√ (display only)
-	out = out.replace(/(-?\d+)ⁿ√/g, (m, n) => `${toSuperscriptDigits(n)}√`);
-	// Alias support: 3ˣ√ => ³√ (display only)
-	out = out.replace(/(-?\d+)ˣ√/g, (m, n) => `${toSuperscriptDigits(n)}√`);
-	return out;
-}
-
 function updateDisplay(val) {
-	const text = val || '';
-	display.textContent = text ? prettify(text) : '0';
+	display.textContent = val || '0';
 }
 
 function updateHistory(val) {
@@ -77,18 +62,6 @@ function safeEval(expr) {
 			return `Math.${jsFn}(${arg})`;
 		}
 	});
-	// Nth-root parsing: nⁿ√x => Math.pow(x,1/n)
-	// Supports n as number/decimal/negatives or parenthesized; x as number or parenthesized expr
-	expr = expr.replace(/(\([^()]+\)|-?\d*\.?\d+)ⁿ√\s*(\([^()]*\)|-?\d*\.?\d+)/g, (m, n, x) => {
-		return `Math.pow(${x},1/${n})`;
-	});
-	// If user typed just ⁿ√x without a leading n, treat as square root by default
-	expr = expr.replace(/ⁿ√\s*(\([^()]*\)|-?\d*\.?\d+)/g, (m, x) => `Math.sqrt(${x})`);
-	// Alias support: nˣ√x and ˣ√x behave the same as above
-	expr = expr.replace(/(\([^()]+\)|-?\d*\.?\d+)ˣ√\s*(\([^()]*\)|-?\d*\.?\d+)/g, (m, n, x) => {
-		return `Math.pow(${x},1/${n})`;
-	});
-	expr = expr.replace(/ˣ√\s*(\([^()]*\)|-?\d*\.?\d+)/g, (m, x) => `Math.sqrt(${x})`);
 	// Fix for cbrt and sqrt with possible whitespace or nested expressions
 	expr = expr.replace(/³√\s*(\([^)]*\)|\d+(\.\d+)?)/g, (m, arg) => `Math.cbrt(${arg})`);
 	expr = expr.replace(/√\s*(\([^)]*\)|\d+(\.\d+)?)/g, (m, arg) => `Math.sqrt(${arg})`);
@@ -207,10 +180,7 @@ function handleButton(action) {
 			current += '/100';
 			updateDisplay(current);
 			break;
-        case 'nthroot':
-			current += 'ⁿ√(';
-			updateDisplay(current);
-			break;    
+		
 		default:
 			current += action;
 			updateDisplay(current);
