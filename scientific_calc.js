@@ -40,6 +40,10 @@ function safeEval(expr) {
 	// Replace constants
 	expr = expr.replace(/π/g, Math.PI)
 			   .replace(/e/g, Math.E);
+	// Normalize Unicode minus (U+2212) to ASCII hyphen
+	expr = expr.replace(/\u2212/g, '-');
+	// Remove all whitespace to avoid parsing issues (e.g., 2 ^ ( -1 ))
+	expr = expr.replace(/\s+/g, '');
 	// Replace trigonometric functions with degree/radian support
 	expr = expr.replace(/(sin|cos|tan)\(([^\)]+)\)/g, (m, fn, arg) => {
 		if (isDegree) {
@@ -59,11 +63,17 @@ function safeEval(expr) {
 	// Fix for sqrt and cbrt with possible whitespace or nested expressions
 	expr = expr.replace(/√\s*(\([^)]*\)|\d+(\.\d+)?)/g, (m, arg) => `Math.sqrt(${arg})`);
 	expr = expr.replace(/³√\s*(\([^)]*\)|\d+(\.\d+)?)/g, (m, arg) => `Math.cbrt(${arg})`);
+	// Log replacements
+	expr = expr.replace(/log\(/g, 'Math.log10(');
 	expr = expr.replace(/ln\(/g, 'Math.log(');
 	// Factorial
 	expr = expr.replace(/(\d+)!/g, (m, n) => factorial(Number(n)));
-	// Powers
-	expr = expr.replace(/(\d+)\^([\d]+)/g, (m, a, b) => `Math.pow(${a},${b})`);
+	// Powers: convert a^b to Math.pow(a,b), supporting parentheses/decimals/negatives
+	// Do multiple passes to catch nested patterns
+	for (let i = 0; i < 3; i++) {
+		expr = expr.replace(/(\([^()]+\)|[\d.]+)\^(-?\d*\.?\d+|\([^()]+\))/g,
+			(m, base, exp) => `Math.pow(${base},${exp})`);
+	}
 	return expr;
 }
 
