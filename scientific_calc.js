@@ -59,7 +59,7 @@ function safeEval(expr) {
 	// Fix for sqrt with possible whitespace or nested expressions
 	expr = expr.replace(/√\s*\(([^)]*)\)/g, (m, arg) => `Math.sqrt(${arg})`);
 	// Robust cube root: match everything up to the last closing parenthesis
-	expr = expr.replace(/³√\s*\((.*)\)/g, (m, arg) => `Math.cbrt(${arg})`);
+	expr = expr.replace(/³√\s*\(([^)]*)\)/g, (m, arg) => `Math.cbrt(${arg})`);
 	expr = expr.replace(/ln\(/g, 'Math.log(');
 	// Factorial
 	expr = expr.replace(/(\d+)!/g, (m, n) => factorial(Number(n)));
