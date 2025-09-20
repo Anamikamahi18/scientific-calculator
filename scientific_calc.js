@@ -40,20 +40,26 @@ function safeEval(expr) {
 	// Replace constants
 	expr = expr.replace(/π/g, Math.PI)
 			   .replace(/e/g, Math.E);
-	// Replace trigonometric functions with degree/radian support
-	expr = expr.replace(/(sin|cos|tan)\(([^\)]+)\)/g, (m, fn, arg) => {
+	// Replace trigonometric functions with degree/radian support (allow negative and nested args)
+	expr = expr.replace(/(sin|cos|tan)\(([^()]|\([^()]*\))*\)/g, (m) => {
+		// m is like 'sin(-sqrt(2))'
+		const fn = m.match(/^(sin|cos|tan)/)[0];
+		const arg = m.slice(fn.length + 1, -1);
 		if (isDegree) {
-			return `Math.${fn}((${arg})*Math.PI/180)`;
+			return `Math.${fn}((` + arg + `)*Math.PI/180)`;
 		} else {
-			return `Math.${fn}(${arg})`;
+			return `Math.${fn}(` + arg + `)`;
 		}
 	});
-	expr = expr.replace(/(arcsin|arccos|arctan)\(([^\)]+)\)/g, (m, fn, arg) => {
+	expr = expr.replace(/(arcsin|arccos|arctan)\(([^()]|\([^()]*\))*\)/g, (m) => {
+		// m is like 'arcsin(-0.5)'
+		const fn = m.match(/^(arcsin|arccos|arctan)/)[0];
+		const arg = m.slice(fn.length + 1, -1);
 		let jsFn = fn.replace('arc', 'a');
 		if (isDegree) {
-			return `(Math.${jsFn}(${arg})*180/Math.PI)`;
+			return `(Math.${jsFn}(` + arg + `)*180/Math.PI)`;
 		} else {
-			return `Math.${jsFn}(${arg})`;
+			return `Math.${jsFn}(` + arg + `)`;
 		}
 	});
 	expr = expr.replace(/log\(/g, 'Math.log10(')
