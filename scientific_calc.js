@@ -56,7 +56,7 @@ function safeEval(expr) {
 	expr = expr.replace(/\b(sin|cos|tan|arcsin|arccos|arctan|log|ln)(π|e|-?\d*\.?\d+)(?!\()/g,
 		(m, fn, arg) => `${fn}(${arg})`);
 	// Replace trigonometric functions with degree/radian support
-	expr = expr.replace(/(sin|cos|tan)\(([^\)]+)\)/g, (m, fn, arg) => {
+	expr = expr.replace(/\b(sin|cos|tan)\(([^\)]+)\)/g, (m, fn, arg) => {
 		if (isDegree) {
 			return `Math.${fn}((${arg})*Math.PI/180)`;
 		} else {
