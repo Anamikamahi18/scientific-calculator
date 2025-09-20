@@ -52,7 +52,8 @@ function safeEval(expr) {
 	// Remove all whitespace to avoid parsing issues (e.g., 2 ^ ( -1 ))
 	expr = expr.replace(/\s+/g, '');
 	// If functions are written without parentheses (e.g., sin30, log10), wrap immediate numeric/constant arg
-	expr = expr.replace(/\b(sin|cos|tan|arcsin|arccos|arctan|log|ln)(π|e|-?\d*\.?\d+)/g,
+	// Only wrap if not already followed by an opening parenthesis
+	expr = expr.replace(/\b(sin|cos|tan|arcsin|arccos|arctan|log|ln)(π|e|-?\d*\.?\d+)(?!\()/g,
 		(m, fn, arg) => `${fn}(${arg})`);
 	// Replace trigonometric functions with degree/radian support
 	expr = expr.replace(/(sin|cos|tan)\(([^\)]+)\)/g, (m, fn, arg) => {
@@ -63,7 +64,7 @@ function safeEval(expr) {
 		}
 	});
 	expr = expr.replace(/(arcsin|arccos|arctan)\(([^\)]+)\)/g, (m, fn, arg) => {
-		let jsFn = fn.replace('arcsin', 'asin').replace('arccos', 'acos').replace('arctan', 'atan');
+		let jsFn = fn.replace('arc', 'a');
 		if (isDegree) {
 			return `(Math.${jsFn}(${arg})*180/Math.PI)`;
 		} else {
