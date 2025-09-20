@@ -41,15 +41,19 @@ function safeEval(expr) {
 	// Replace constants
 	expr = expr.replace(/π/g, Math.PI)
 			   .replace(/e/g, Math.E);
-    // Normalize Unicode minus then remove whitespace early
-    expr = expr.replace(/\u2212/g, '-');
-    expr = expr.replace(/\s+/g, '');
     // Pretty inverse trig tokens to canonical names before reciprocal mapping
-    expr = expr.replace(/sin⁻¹\(/g, 'arcsin(')
-	    .replace(/cos⁻¹\(/g, 'arccos(')
-	    .replace(/tan⁻¹\(/g, 'arctan(');
-    // Pretty reciprocal token to evaluable form (only remaining true reciprocals)
-    expr = expr.replace(/⁻¹/g, '^(-1)');
+    expr = expr.replace(/sin⁻¹/g, 'arcsin')
+	    .replace(/cos⁻¹/g, 'arccos')
+	    .replace(/tan⁻¹/g, 'arctan');
+	// Pretty reciprocal token to evaluable form
+	expr = expr.replace(/⁻¹/g, '^(-1)');
+	// Normalize Unicode minus (U+2212) to ASCII hyphen
+	expr = expr.replace(/\u2212/g, '-');
+	// Remove all whitespace to avoid parsing issues (e.g., 2 ^ ( -1 ))
+	expr = expr.replace(/\s+/g, '');
+	// If functions are written without parentheses (e.g., sin30, log10), wrap immediate numeric/constant arg
+	expr = expr.replace(/\b(sin|cos|tan|arcsin|arccos|arctan|log|ln)(π|e|-?\d*\.?\d+)/g,
+		(m, fn, arg) => `${fn}(${arg})`);
 	// Replace trigonometric functions with degree/radian support
 	expr = expr.replace(/(sin|cos|tan)\(([^\)]+)\)/g, (m, fn, arg) => {
 		if (isDegree) {
@@ -161,19 +165,19 @@ function handleButton(action) {
 			break;
 		case 'sin': case 'cos': case 'tan':
 		case 'log': case 'ln':
-			current += action + '(';
+			current += action;
 			updateDisplay(current);
 			break;
 		case 'arcsin':
-			current += 'sin⁻¹(';
+			current += 'sin⁻¹';
 			updateDisplay(current);
 			break;
 		case 'arccos':
-			current += 'cos⁻¹(';
+			current += 'cos⁻¹';
 			updateDisplay(current);
 			break;
 		case 'arctan':
-			current += 'tan⁻¹(';
+			current += 'tan⁻¹';
 			updateDisplay(current);
 			break;
 		case 'sqrt':
