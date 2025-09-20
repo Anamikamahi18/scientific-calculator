@@ -45,6 +45,14 @@ function safeEval(expr) {
 	expr = expr.replace(/sin⁻¹\(/g, 'arcsin(')
 		   .replace(/cos⁻¹\(/g, 'arccos(')
 		   .replace(/tan⁻¹\(/g, 'arctan(');
+	// Also support ASCII-typed inverse trig: sin^-1( and sin^(-1)( (and cos/tan)
+	expr = expr
+		.replace(/sin\^\s*\(-?\s*1\s*\)\s*\(/g, 'arcsin(')
+		.replace(/cos\^\s*\(-?\s*1\s*\)\s*\(/g, 'arccos(')
+		.replace(/tan\^\s*\(-?\s*1\s*\)\s*\(/g, 'arctan(')
+		.replace(/sin\^\s*-?\s*1\s*\(/g, 'arcsin(')
+		.replace(/cos\^\s*-?\s*1\s*\(/g, 'arccos(')
+		.replace(/tan\^\s*-?\s*1\s*\(/g, 'arctan(');
 	// Pretty reciprocal token to evaluable form
 	expr = expr.replace(/⁻¹/g, '^(-1)');
 	// Normalize Unicode minus (U+2212) to ASCII hyphen
