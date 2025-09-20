@@ -61,16 +61,17 @@ function safeEval(expr) {
 			   .replace(/ln\(/g, 'Math.log(')
 			   .replace(/√\(([^\)]+)\)/g, (m, arg) => `Math.sqrt(${arg})`)
 			   .replace(/³√\(([^\)]+)\)/g, (m, arg) => `Math.cbrt(${arg})`);
-	// Factorial
-	expr = expr.replace(/(\d+)!/g, (m, n) => factorial(Number(n)));
+	// Factorial: support numbers, decimals, and parenthesized expressions
+	expr = expr.replace(/([\d\.]+|\([^\)]+\))!/g, (m, n) => `factorial(${n})`);
 	// nth root: nthroot(a, b) => Math.pow(a, 1/b)
 	expr = expr.replace(/nthroot\(([^,]+),([^\)]+)\)/g, (m, a, b) => `Math.pow(${a},1/${b})`);
-	// Powers
-	expr = expr.replace(/(\d+)\^([\d]+)/g, (m, a, b) => `Math.pow(${a},${b})`);
+	// Powers: support numbers, decimals, and parenthesized expressions
+	expr = expr.replace(/([\d\.]+|\([^\)]+\))\^([\d\.]+|\([^\)]+\))/g, (m, a, b) => `Math.pow(${a},${b})`);
 	return expr;
 }
 
 function factorial(n) {
+	n = Number(eval(n));
 	if (n < 0) return NaN;
 	if (n === 0 || n === 1) return 1;
 	let res = 1;
