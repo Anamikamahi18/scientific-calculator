@@ -49,6 +49,8 @@ function safeEval(expr) {
 	expr = expr.replace(/⁻¹/g, '^(-1)');
 	// Normalize Unicode minus (U+2212) to ASCII hyphen
 	expr = expr.replace(/\u2212/g, '-');
+	// Replace × with * for evaluation
+	expr = expr.replace(/×/g, '*');
 	// Remove all whitespace to avoid parsing issues (e.g., 2 ^ ( -1 ))
 	expr = expr.replace(/\s+/g, '');
 	// If functions are written without parentheses (e.g., sin30, log10), wrap immediate numeric/constant arg
@@ -216,7 +218,7 @@ function handleButton(action) {
 			break;
 		case 'exp': {
 			const needsMul = current && /[\d)πe!]$/.test(current);
-			current += (needsMul ? '*10^' : '10^');
+			current += (needsMul ? '×10^' : '10^');
 			updateDisplay(current);
 			break;
 		}
@@ -224,7 +226,7 @@ function handleButton(action) {
 			if (lastResult === '') return; // Do nothing if no previous result
 			const ansVal = String(lastResult);
 			const needsMul = current && /[\d)πe!]$/.test(current);
-			current += (needsMul ? '*' : '') + ansVal;
+			current += (needsMul ? '×' : '') + ansVal;
 			updateDisplay(current);
 			break;
 		}
@@ -251,7 +253,7 @@ document.addEventListener('keydown', e => {
 		return;
 	}
 	const keyMap = {
-		'+': '+', '-': '-', '*': '*', '/': '/', '.': '.',
+		'+': '+', '-': '-', '*': '×', '/': '/', '.': '.',
 		'Enter': '=', '=': '=', 'Backspace': 'C', 'Delete': 'AC',
 		'(': '(', ')': ')'
 	};
