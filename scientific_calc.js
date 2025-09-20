@@ -56,10 +56,9 @@ function safeEval(expr) {
 			return `Math.${jsFn}(${arg})`;
 		}
 	});
-	// Fix for sqrt with possible whitespace or nested expressions
-	expr = expr.replace(/√\s*\(([^")]*)\)/g, (m, arg) => `Math.sqrt(${arg})`);
-	// Cube root: match nested or complex expressions inside parentheses (robust)
-	expr = expr.replace(/³√\s*\(((?:[^()]+|\([^()]*\))*)\)/g, (m, arg) => `Math.cbrt(${arg})`);
+	// Fix for sqrt and cbrt with possible whitespace or nested expressions
+	expr = expr.replace(/√\s*\(([^)]*)\)/g, (m, arg) => `Math.sqrt(${arg})`);
+	expr = expr.replace(/³√\s*\(([^)]*)\)/g, (m, arg) => `Math.cbrt(${arg})`);
 	expr = expr.replace(/ln\(/g, 'Math.log(');
 	// Factorial
 	expr = expr.replace(/(\d+)!/g, (m, n) => factorial(Number(n)));
