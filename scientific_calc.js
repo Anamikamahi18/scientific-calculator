@@ -58,7 +58,7 @@ function safeEval(expr) {
 	});
 	// Fix for sqrt and cbrt with possible whitespace or nested expressions
 	expr = expr.replace(/√\s*\(([^)]*)\)/g, (m, arg) => `Math.sqrt(${arg})`);
-	expr = expr.replace(/³√\s*\(\s*([^)]*?)\s*\)/g, (m, arg) => `Math.cbrt(${arg})`);
+	expr = expr.replace(/³√\s*(\([^)]*\)|\d+(\.\d+)?)/g, (m, arg) => `Math.cbrt(${arg})`);
 	expr = expr.replace(/ln\(/g, 'Math.log(');
 	// Factorial
 	expr = expr.replace(/(\d+)!/g, (m, n) => factorial(Number(n)));
@@ -139,11 +139,11 @@ function handleButton(action) {
 			updateDisplay(current);
 			break;
 		case 'sqrt':
-			current += '√(';
+			current += '√';
 			updateDisplay(current);
 			break;
 		case 'cbrt':
-			current += '³√(';
+			current += '³√';
 			updateDisplay(current);
 			break;
 		case 'nthroot':
