@@ -40,6 +40,10 @@ function safeEval(expr) {
 	// Replace constants
 	expr = expr.replace(/π/g, Math.PI)
 			   .replace(/e/g, Math.E);
+	// Pretty inverse trig tokens to canonical names before reciprocal mapping
+	expr = expr.replace(/sin⁻¹\(/g, 'arcsin(')
+		   .replace(/cos⁻¹\(/g, 'arccos(')
+		   .replace(/tan⁻¹\(/g, 'arctan(');
 	// Pretty reciprocal token to evaluable form
 	expr = expr.replace(/⁻¹/g, '^(-1)');
 	// Normalize Unicode minus (U+2212) to ASCII hyphen
