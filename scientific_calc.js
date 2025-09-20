@@ -21,7 +21,7 @@ if (!modeBtn) {
 modeBtn.addEventListener('click', () => {
 	isDegree = !isDegree;
 	modeBtn.textContent = isDegree ? 'DEG' : 'RAD';
-
+});
 
 let current = '';
 let memory = 0;
@@ -67,6 +67,14 @@ function safeEval(expr) {
 	// Powers
 	expr = expr.replace(/(\d+)\^([\d]+)/g, (m, a, b) => `Math.pow(${a},${b})`);
 	return expr;
+}
+
+function factorial(n) {
+	if (n < 0) return NaN;
+	if (n === 0 || n === 1) return 1;
+	let res = 1;
+	for (let i = 2; i <= n; i++) res *= i;
+	return res;
 }
 
 function handleButton(action) {
@@ -158,7 +166,7 @@ function handleButton(action) {
 			current += action;
 			updateDisplay(current);
 	}
-
+}
 
 buttons.forEach(btn => {
 	btn.addEventListener('click', e => {
