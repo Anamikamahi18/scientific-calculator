@@ -157,7 +157,7 @@ function handleButton(action) {
 			updateDisplay(current);
 			break;
         case 'inv':
-			current += '^-1';
+			current += '^(-1)';
 			updateDisplay(current);
 			break;
 		case 'fact':
