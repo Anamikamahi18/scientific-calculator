@@ -41,20 +41,15 @@ function safeEval(expr) {
 	// Replace constants
 	expr = expr.replace(/π/g, Math.PI)
 			   .replace(/e/g, Math.E);
+    // Normalize Unicode minus then remove whitespace early
+    expr = expr.replace(/\u2212/g, '-');
+    expr = expr.replace(/\s+/g, '');
     // Pretty inverse trig tokens to canonical names before reciprocal mapping
-    expr = expr.replace(/sin⁻¹\s*\(/g, 'arcsin(')
-	    .replace(/cos⁻¹\s*\(/g, 'arccos(')
-	    .replace(/tan⁻¹\s*\(/g, 'arctan(')
-	    // Also support no-parentheses: sin⁻¹ x -> arcsin(x)
-	    .replace(/sin⁻¹\s*(-?[\d.]+|Math\.PI|Math\.E)/g, 'arcsin($1)')
-	    .replace(/cos⁻¹\s*(-?[\d.]+|Math\.PI|Math\.E)/g, 'arccos($1)')
-	    .replace(/tan⁻¹\s*(-?[\d.]+|Math\.PI|Math\.E)/g, 'arctan($1)');
-	// Pretty reciprocal token to evaluable form
-	expr = expr.replace(/⁻¹/g, '^(-1)');
-	// Normalize Unicode minus (U+2212) to ASCII hyphen
-	expr = expr.replace(/\u2212/g, '-');
-	// Remove all whitespace to avoid parsing issues (e.g., 2 ^ ( -1 ))
-	expr = expr.replace(/\s+/g, '');
+    expr = expr.replace(/sin⁻¹\(/g, 'arcsin(')
+	    .replace(/cos⁻¹\(/g, 'arccos(')
+	    .replace(/tan⁻¹\(/g, 'arctan(');
+    // Pretty reciprocal token to evaluable form (only remaining true reciprocals)
+    expr = expr.replace(/⁻¹/g, '^(-1)');
 	// Replace trigonometric functions with degree/radian support
 	expr = expr.replace(/(sin|cos|tan)\(([^\)]+)\)/g, (m, fn, arg) => {
 		if (isDegree) {
