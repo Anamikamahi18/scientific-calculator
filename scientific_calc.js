@@ -27,36 +27,24 @@ let current = '';
 let memory = 0;
 let lastResult = '';
 let error = false;
-let awaitingNIndex = false; // When true, next digit(s) fill the n in ⁿ√x
 
-function extractTrailingOperand(str) {
-	if (!str) return null;
-	const end = str.length - 1;
-	// Case: ends with a parenthesized expression, grab the matching pair
-	if (str[end] === ')') {
-		let depth = 0;
-		for (let i = end; i >= 0; i--) {
-			if (str[i] === ')') depth++;
-			else if (str[i] === '(') {
-				depth--;
-				if (depth === 0) {
-					return { operand: str.slice(i, end + 1), start: i };
-				}
-			}
-		}
-		return null;
-	}
-	// Case: numbers, constants π/e, possibly followed by factorials
-	const m = str.match(/((π|e|-?\d*\.?\d+))(?:!+)?$/);
-	if (m) {
-		const operand = m[0];
-		return { operand, start: str.length - operand.length };
-	}
-	return null;
+// Pretty-print helpers for display only (does not affect evaluation)
+const _superscripts = { '0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹','-':'⁻' };
+function toSuperscriptDigits(s) {
+	return s.split('').map(ch => _superscripts[ch] || ch).join('');
+}
+function prettify(expr) {
+	let out = expr;
+	// Convert patterns like 3ⁿ√ to ³√ (display only)
+	out = out.replace(/(-?\d+)ⁿ√/g, (m, n) => `${toSuperscriptDigits(n)}√`);
+	// Alias support: 3ˣ√ => ³√ (display only)
+	out = out.replace(/(-?\d+)ˣ√/g, (m, n) => `${toSuperscriptDigits(n)}√`);
+	return out;
 }
 
 function updateDisplay(val) {
-	display.textContent = val || '0';
+	const text = val || '';
+	display.textContent = text ? prettify(text) : '0';
 }
 
 function updateHistory(val) {
@@ -96,6 +84,11 @@ function safeEval(expr) {
 	});
 	// If user typed just ⁿ√x without a leading n, treat as square root by default
 	expr = expr.replace(/ⁿ√\s*(\([^()]*\)|-?\d*\.?\d+)/g, (m, x) => `Math.sqrt(${x})`);
+	// Alias support: nˣ√x and ˣ√x behave the same as above
+	expr = expr.replace(/(\([^()]+\)|-?\d*\.?\d+)ˣ√\s*(\([^()]*\)|-?\d*\.?\d+)/g, (m, n, x) => {
+		return `Math.pow(${x},1/${n})`;
+	});
+	expr = expr.replace(/ˣ√\s*(\([^()]*\)|-?\d*\.?\d+)/g, (m, x) => `Math.sqrt(${x})`);
 	// Fix for cbrt and sqrt with possible whitespace or nested expressions
 	expr = expr.replace(/³√\s*(\([^)]*\)|\d+(\.\d+)?)/g, (m, arg) => `Math.cbrt(${arg})`);
 	expr = expr.replace(/√\s*(\([^)]*\)|\d+(\.\d+)?)/g, (m, arg) => `Math.sqrt(${arg})`);
@@ -127,23 +120,16 @@ function handleButton(action) {
 		error = false;
 		updateDisplay(current);
 	}
-	const isDigitOrDot = /^[0-9.]$/.test(action);
-	if (action !== 'nthroot' && !isDigitOrDot) {
-		awaitingNIndex = false;
-	}
 	switch(action) {
 		case 'AC':
 			current = '';
 			lastResult = '';
 			updateDisplay(current);
 			updateHistory('');
-			awaitingNIndex = false;
 			break;
 		case 'C':
 			current = current.slice(0, -1);
 			updateDisplay(current);
-			// If we backspaced, be conservative and stop awaiting n
-			awaitingNIndex = false;
 			break;
 		case '=':
 			try {
@@ -158,7 +144,6 @@ function handleButton(action) {
 				updateDisplay('Error');
 				error = true;
 			}
-			awaitingNIndex = false;
 			break;
 		case 'MC':
 			memory = 0;
@@ -222,30 +207,11 @@ function handleButton(action) {
 			current += '/100';
 			updateDisplay(current);
 			break;
-		case 'nthroot': {
-			const tail = extractTrailingOperand(current);
-			if (tail) {
-				current = current.slice(0, tail.start) + 'ⁿ√' + tail.operand;
-				awaitingNIndex = true; // We have x; next digits should fill n
-			} else {
-				current += 'ⁿ√';
-				// No operand yet; next digits are radicand (do not await n)
-				awaitingNIndex = false;
-			}
+        case 'nthroot':
+			current += 'ⁿ√(';
 			updateDisplay(current);
-			break; }
+			break;    
 		default:
-			if (isDigitOrDot && awaitingNIndex) {
-				const idx = current.lastIndexOf('ⁿ√');
-				if (idx !== -1) {
-					current = current.slice(0, idx) + action + current.slice(idx);
-					updateDisplay(current);
-					break;
-				} else {
-					// Fallback if placeholder missing
-					awaitingNIndex = false;
-				}
-			}
 			current += action;
 			updateDisplay(current);
 	}
