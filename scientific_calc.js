@@ -6,22 +6,13 @@ const buttons = document.querySelectorAll('.btn');
 
 // Degree/Radian mode
 let isDegree = true;
-// Add a toggle button dynamically if not present
-let modeBtn = document.getElementById('mode-toggle');
-if (!modeBtn) {
-	// Create a wrapper for better alignment
-	const toggleWrapper = document.createElement('div');
-	toggleWrapper.className = 'calculator-toggle';
-	modeBtn = document.createElement('button');
-	modeBtn.id = 'mode-toggle';
-	modeBtn.textContent = 'DEG';
-	toggleWrapper.appendChild(modeBtn);
-	document.querySelector('.calculator').insertBefore(toggleWrapper, document.querySelector('.calculator-display').nextSibling);
+const degRadio = document.getElementById('deg-radio');
+const radRadio = document.getElementById('rad-radio');
+if (degRadio && radRadio) {
+    degRadio.checked = true;
+    degRadio.addEventListener('change', () => { if (degRadio.checked) isDegree = true; });
+    radRadio.addEventListener('change', () => { if (radRadio.checked) isDegree = false; });
 }
-modeBtn.addEventListener('click', () => {
-	isDegree = !isDegree;
-	modeBtn.textContent = isDegree ? 'DEG' : 'RAD';
-});
 
 let current = '';
 let memory = 0;

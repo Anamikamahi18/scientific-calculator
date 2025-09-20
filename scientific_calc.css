@@ -1,25 +1,23 @@
-.calculator-toggle {
-	width: 100%;
-	display: flex;
-	justify-content: flex-end;
-	margin-bottom: 8px;
+/* Angle mode radio group */
+.mode-group {
+	grid-column: span 2;
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 8px;
 }
-
-#mode-toggle {
-	width: 100%;
-	font-size: 1.1rem;
-	padding: 10px 0;
-	border: none;
-	border-radius: 8px;
+.mode-group label {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
 	background: #f8d7da;
 	color: #b71c1c;
-	font-weight: bold;
-	margin: 0;
-	box-shadow: 0 2px 6px rgba(0,0,0,0.04);
-	transition: background 0.2s;
+	border-radius: 8px;
+	padding: 10px 0;
+	font-weight: 600;
 }
-#mode-toggle:active, #mode-toggle:focus {
-	background: #f1b0b7;
+.mode-group input[type="radio"] {
+	accent-color: #b71c1c;
 }
 body {
 	background: #f4f6fb;
