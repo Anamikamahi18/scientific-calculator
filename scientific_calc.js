@@ -57,7 +57,7 @@ function safeEval(expr) {
 		}
 	});
 	// Fix for sqrt and cbrt with possible whitespace or nested expressions
-	expr = expr.replace(/√\s*\(([^)]*)\)/g, (m, arg) => `Math.sqrt(${arg})`);
+	expr = expr.replace(/√\s*(\([^)]*\)|\d+(\.\d+)?)/g, (m, arg) => `Math.sqrt(${arg})`);
 	expr = expr.replace(/³√\s*(\([^)]*\)|\d+(\.\d+)?)/g, (m, arg) => `Math.cbrt(${arg})`);
 	expr = expr.replace(/ln\(/g, 'Math.log(');
 	// Factorial
