@@ -66,9 +66,8 @@ body {
 	grid-template-columns: repeat(4, 1fr);
 	gap: 10px;
 }
-.center-eq {
+.span-two {
 	grid-column: span 2;
-	justify-self: center;
 }
 
 .btn {
