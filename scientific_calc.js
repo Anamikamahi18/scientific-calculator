@@ -40,16 +40,15 @@ function safeEval(expr) {
 	// Replace constants
 	expr = expr.replace(/π/g, Math.PI)
 			   .replace(/e/g, Math.E);
-
 	// Replace trigonometric functions with degree/radian support
-	expr = expr.replace(/(sin|cos|tan)\s*\(([^\)]+)\)/g, (m, fn, arg) => {
+	expr = expr.replace(/(sin|cos|tan)\(([^\)]+)\)/g, (m, fn, arg) => {
 		if (isDegree) {
 			return `Math.${fn}((${arg})*Math.PI/180)`;
 		} else {
 			return `Math.${fn}(${arg})`;
 		}
 	});
-	expr = expr.replace(/(arcsin|arccos|arctan)\s*\(([^\)]+)\)/g, (m, fn, arg) => {
+	expr = expr.replace(/(arcsin|arccos|arctan)\(([^\)]+)\)/g, (m, fn, arg) => {
 		let jsFn = fn.replace('arc', 'a');
 		if (isDegree) {
 			return `(Math.${jsFn}(${arg})*180/Math.PI)`;
@@ -57,15 +56,11 @@ function safeEval(expr) {
 			return `Math.${jsFn}(${arg})`;
 		}
 	});
-
-	// Advanced functions: √, ³√
-	expr = expr.replace(/√\s*\(([^\)]+)\)/g, (m, arg) => `Math.sqrt(${arg})`);
-	expr = expr.replace(/³√\s*\(([^\)]+)\)/g, (m, arg) => `Math.cbrt(${arg})`);
-
-	// log, ln
-	expr = expr.replace(/log\s*\(/g, 'Math.log10(')
-			   .replace(/ln\s*\(/g, 'Math.log(');
-
+	// Fix for sqrt and cbrt with possible whitespace or nested expressions
+	expr = expr.replace(/√\s*\(([^\)]*)\)/g, (m, arg) => `Math.sqrt(${arg})`);
+	expr = expr.replace(/³√\s*\(([^\)]*)\)/g, (m, arg) => `Math.cbrt(${arg})`);
+	expr = expr.replace(/log\(/g, 'Math.log10(')
+	expr = expr.replace(/ln\(/g, 'Math.log(');
 	// Factorial
 	expr = expr.replace(/(\d+)!/g, (m, n) => factorial(Number(n)));
 	// nth root: nthroot(a, b) => Math.pow(a, 1/b)
