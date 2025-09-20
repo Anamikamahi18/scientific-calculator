@@ -76,6 +76,11 @@ body {
 .btn:active, .btn:focus {
 	background: #d1d3e0;
 }
+.btn:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+	box-shadow: none;
+}
 .btn.memory {
 	background: #f7e9c7;
 }

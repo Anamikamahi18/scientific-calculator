@@ -3,6 +3,7 @@
 const display = document.getElementById('display');
 const history = document.getElementById('history');
 const buttons = document.querySelectorAll('.btn');
+const powerButton = document.querySelector('[data-action="power"]');
 
 // Degree/Radian mode via radio buttons
 let isDegree = true;
@@ -18,6 +19,7 @@ let current = '';
 let memory = 0;
 let lastResult = '';
 let error = false;
+let powered = true;
 
 function updateDisplay(val) {
 	display.textContent = val || '0';
@@ -83,12 +85,28 @@ function factorial(n) {
 }
 
 function handleButton(action) {
+	if (!powered && action !== 'power') return;
 	if (error) {
 		current = '';
 		error = false;
 		updateDisplay(current);
 	}
 	switch(action) {
+		case 'power': {
+			powered = !powered;
+			// Toggle all buttons except the power button
+			buttons.forEach(b => {
+				if (b.getAttribute('data-action') !== 'power') b.disabled = !powered;
+			});
+			if (!powered) {
+				current = '';
+				updateDisplay('0');
+				updateHistory('');
+			} else {
+				updateDisplay(current || '0');
+			}
+			break;
+		}
 		case 'AC':
 			current = '';
 			lastResult = '';
@@ -203,6 +221,13 @@ buttons.forEach(btn => {
 
 // Keyboard support
 document.addEventListener('keydown', e => {
+	if (!powered) {
+		// Allow turning back on via Enter or 'o'/'O'
+		if (e.key === 'Enter' || e.key.toLowerCase() === 'o') {
+			handleButton('power');
+		}
+		return;
+	}
 	const keyMap = {
 		'+': '+', '-': '-', '*': '*', '/': '/', '.': '.',
 		'Enter': '=', '=': '=', 'Backspace': 'C', 'Delete': 'AC',
@@ -214,3 +239,8 @@ document.addEventListener('keydown', e => {
 		handleButton(e.key);
 	}
 });
+
+// Initialize disabled state for buttons if needed
+if (!powered) {
+	buttons.forEach(b => { if (b.getAttribute('data-action') !== 'power') b.disabled = true; });
+}
