@@ -180,6 +180,19 @@ function handleButton(action) {
 			current += '/100';
 			updateDisplay(current);
 			break;
+		case 'exp': {
+			const needsMul = current && /[\d)πe!]$/.test(current);
+			current += (needsMul ? '*10^' : '10^');
+			updateDisplay(current);
+			break;
+		}
+		case 'ans': {
+			const ansVal = (lastResult === '' ? '0' : String(lastResult));
+			const needsMul = current && /[\d)πe!]$/.test(current);
+			current += (needsMul ? '*' : '') + ansVal;
+			updateDisplay(current);
+			break;
+		}
 		
 		default:
 			current += action;
