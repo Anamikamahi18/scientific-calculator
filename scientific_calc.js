@@ -233,13 +233,18 @@ function handleButton(action) {
 			break;
 		}
 		
-	    default:
-    // Only clear after evaluation if the next input is a number or decimal
-    if (justEvaluated && (/^\d$/.test(action) || action === '.')) {
-        current = '';
-        justEvaluated = false;
-    } else if (justEvaluated) {
-        justEvaluated = false;
+	    // ...existing code...
+default:
+    if (justEvaluated) {
+        // If it's an operator, continue with the result; if it's a number, start fresh
+        if (['+', '-', '×', '÷', '*', '/', '^', '('].includes(action)) {
+            // Continue calculation with the previous result
+            justEvaluated = false;
+        } else {
+            // Start a new calculation
+            current = '';
+            justEvaluated = false;
+        }
     }
     if (action === '*') {
         current += '×';
