@@ -56,7 +56,7 @@ function safeEval(expr) {
 	// If functions are written without parentheses (e.g., sin30, log10), wrap immediate numeric/constant arg
 	// Only wrap if not already followed by an opening parenthesis
 	expr = expr.replace(/\b(sin|cos|tan|arcsin|arccos|arctan|log|ln)(π|e|-?\d*\.?\d+)(?!\()/g,
-		(m, fn, arg) => `${fn}(${arg})`);
+    (m, fn, arg) => `${fn}(${arg})`);
 	// Replace trigonometric functions with degree/radian support
 	expr = expr.replace(/\b(sin|cos|tan)\(([^\)]+)\)/g, (m, fn, arg) => {
 		if (isDegree) {
@@ -84,9 +84,9 @@ function safeEval(expr) {
 	// Powers: convert a^b to Math.pow(a,b), supporting parentheses/decimals/negatives
 	// Do multiple passes to catch nested patterns
 	for (let i = 0; i < 3; i++) {
-		// Before evaluating, convert E notation to *10^
-expr = expr.replace(/(\d+(\.\d+)?)(E)(-?\d+)/gi, (m, base, _, __, exp) => `${base}*Math.pow(10,${exp})`);
-	}
+    // Only replace E notation when E/e is between two numbers (not after + or -)
+expr = expr.replace(/(\d+(\.\d+)?)[Ee](-?\d+)/g, (m, base, _, exp) => `${base}*Math.pow(10,${exp})`);
+}
 	return expr;
 }
 
@@ -259,7 +259,7 @@ document.addEventListener('keydown', e => {
 	const keyMap = {
 		'+': '+', '-': '-', '*': '*', '/': '/', '.': '.',
 		'Enter': '=', '=': '=', 'Backspace': 'C', 'Delete': 'AC',
-		'(': '(', ')': ')'
+		'(': '(', ')': ')', '^': '^' 
 	};
 	if (keyMap[e.key]) {
 		handleButton(keyMap[e.key]);
