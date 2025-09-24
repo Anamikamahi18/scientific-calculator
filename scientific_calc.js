@@ -27,7 +27,7 @@ let memory = 0;
 let lastResult = '';
 let error = false;
 let powered = true;
-
+let justEvaluated = false;
 function updateDisplay(val) {
 	if (!powered) { display.textContent = ''; return; }
 	display.textContent = (val === '' || val == null) ? '0' : String(val);
@@ -122,6 +122,7 @@ function handleButton(action) {
 			current = '';
 			updateDisplay(current);
 			updateHistory('');
+			justEvaluated = false;
 			break;
 		case 'C':
 			current = current.slice(0, -1);
@@ -131,11 +132,13 @@ function handleButton(action) {
 			try {
 				let expr = safeEval(current);
 				let result = eval(expr);
+				
 				if (!isFinite(result)) throw new Error('Invalid');
 				lastResult = result;
 				updateDisplay(result);
 				updateHistory(current + ' = ' + result);
 				current = '' + result;
+				justEvaluated = true;
 			} catch {
 				updateDisplay('Error');
 				error = true;
@@ -230,7 +233,11 @@ function handleButton(action) {
 			break;
 		}
 		
-		default:
+	    default:
+			if (justEvaluated) {
+				current = '';
+                justEvaluated = false;
+			}
     if (action === '*') {
         current += '×';
     } else if (action === '/') {
