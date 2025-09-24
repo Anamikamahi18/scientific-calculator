@@ -149,21 +149,21 @@ function handleButton(action) {
 			updateDisplay(current);
 			break;
 		case '=':
-			try {
-				let expr = safeEval(current);
-				let result = eval(expr);
-				
-				if (!isFinite(result)) throw new Error('Invalid');
-				lastResult = result;
-				updateDisplay(result);
-				updateHistory(current + ' = ' + result);
-				current = '' + result;
-				justEvaluated = true;
-			} catch {
-				updateDisplay('Error');
-				error = true;
-			}
-			break;
+    try {
+        let expr = safeEval(current);
+        let result = eval(expr);
+        
+        if (!isFinite(result)) throw new Error('Invalid');
+        lastResult = result;
+        updateDisplay(result);
+        updateHistory(current + ' = ' + result);
+        current = '' + result; // Keep the result in current
+        justEvaluated = true;
+    } catch {
+        updateDisplay('Error');
+        error = true;
+    }
+    break;
 		case 'MC':
 			memory = 0;
 			break;
@@ -257,16 +257,11 @@ function handleButton(action) {
 // ...existing code...
 default:
     if (justEvaluated) {
-        // If it's an operator, continue with the result; if it's a number, start fresh
-        if (['+', '-', '×', '÷', '*', '/', '^', '('].includes(action)) {
-            // Continue calculation with the previous result
-            justEvaluated = false;
-        } else {
-            // Start a new calculation - but don't clear current yet!
-            justEvaluated = false;
-            // Clear current only when we're about to add the new input
-            current = '';
+        // If it's a number/decimal, start fresh; if it's an operator, continue
+        if (!isNaN(action) || action === '.') {
+            current = ''; // Clear for new calculation
         }
+        justEvaluated = false;
     }
     
     if (action === '*') {
