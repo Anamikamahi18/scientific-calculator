@@ -43,6 +43,17 @@ function safeEval(expr) {
 			   .replace(/e/g, Math.E);
     expr = expr.replace(/×/g, '*')
 	           .replace(/÷/g, '/');
+			   // Convert superscript notation back to ^ for evaluation
+    expr = expr.replace(/²/g, '^2')
+               .replace(/³/g, '^3')
+               .replace(/([⁰¹²³⁴⁵⁶⁷⁸⁹]+)/g, (match) => {
+                   const superscriptMap = {'⁰':'0','¹':'1','²':'2','³':'3','⁴':'4','⁵':'5','⁶':'6','⁷':'7','⁸':'8','⁹':'9'};
+                   let normal = '';
+                   for (let char of match) {
+                       normal += superscriptMap[char] || char;
+                   }
+                   return '^' + normal;
+               });
     // Pretty inverse trig tokens to canonical names before reciprocal mapping
     expr = expr.replace(/sin⁻¹/g, 'arcsin')
 	    .replace(/cos⁻¹/g, 'arccos')
@@ -83,12 +94,21 @@ function safeEval(expr) {
 	expr = expr.replace(/(\d+)!/g, (m, n) => factorial(Number(n)));
 	// Powers: convert a^b to Math.pow(a,b), supporting parentheses/decimals/negatives
 	// Do multiple passes to catch nested patterns
-
-    // ...existing code...
+for (let i = 0; i < 3; i++) {
+    expr = expr.replace(/(\([^)]+\)|[\d.]+|\w+)\^(\([^)]+\)|[\d.-]+)/g, (match, base, exp) => {
+        return `Math.pow(${base},${exp})`;
+    });
+}
 // E notation: only replace when E/e is actually present between numbers
 expr = expr.replace(/(\d+(\.\d+)?)[Ee](-?\d+)/g, (m, base, _, exp) => `${base}*Math.pow(10,${exp})`);
 // ...existing code...
 	return expr;
+}
+
+// Helper function to convert numbers to superscript
+function toSuperscript(num) {
+    const superscriptMap = {'0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹','-':'⁻','(':'^(',')':`)`};
+    return String(num).split('').map(char => superscriptMap[char] || char).join('');
 }
 
 function factorial(n) {
@@ -195,11 +215,11 @@ function handleButton(action) {
 			updateDisplay(current);
 			break;
 		case 'pow2':
-			current += '^2';
+			current += '²';
 			updateDisplay(current);
 			break;
 		case 'pow3':
-			current += '^3';
+			current += '³';
 			updateDisplay(current);
 			break;
 		case 'pow':
@@ -235,25 +255,30 @@ function handleButton(action) {
 		
 	    // ...existing code...
 default:
-    if (justEvaluated) {
-        // If it's an operator, continue with the result; if it's a number, start fresh
-        if (['+', '-', '×', '÷', '*', '/', '^', '('].includes(action)) {
-            // Continue calculation with the previous result
-            justEvaluated = false;
-        } else {
-            // Start a new calculation
-            current = '';
-            justEvaluated = false;
-        }
-    }
-    if (action === '*') {
-        current += '×';
-    } else if (action === '/') {
-        current += '÷';
-    } else {
-        current += action;
-    }
-    updateDisplay(current);
+            if (justEvaluated) {
+                // If it's an operator, continue with the result; if it's a number, start fresh
+                if (['+', '-', '×', '÷', '*', '/', '^', '('].includes(action)) {
+                    // Continue calculation with the previous result
+                    justEvaluated = false;
+                } else {
+                    // Start a new calculation
+                    current = '';
+                    justEvaluated = false;
+                }
+            }
+            if (action === '*') {
+                current += '×';
+            } else if (action === '/') {
+                current += '÷';
+            } else {
+                // Handle superscript conversion for numbers after ^
+                if (current.endsWith('^') && !isNaN(action)) {
+                    current = current.slice(0, -1) + toSuperscript(action);
+                } else {
+                    current += action;
+                }
+            }
+            updateDisplay(current);
 	}
 }
 
