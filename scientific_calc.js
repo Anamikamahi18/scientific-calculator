@@ -82,8 +82,8 @@ function safeEval(expr) {
 	// Powers: convert a^b to Math.pow(a,b), supporting parentheses/decimals/negatives
 	// Do multiple passes to catch nested patterns
 	for (let i = 0; i < 3; i++) {
-		expr = expr.replace(/(\([^()]+\)|[\d.]+)\^(-?\d*\.?\d+|\([^()]+\))/g,
-			(m, base, exp) => `Math.pow(${base},${exp})`);
+		// Before evaluating, convert E notation to *10^
+expr = expr.replace(/(\d+(\.\d+)?)(E)(-?\d+)/gi, (m, base, _, __, exp) => `${base}*Math.pow(10,${exp})`);
 	}
 	return expr;
 }
@@ -214,7 +214,7 @@ function handleButton(action) {
 			break;
 		case 'exp': {
 			const needsMul = current && /[\d)πe!]$/.test(current);
-			current += (needsMul ? '*10^' : '10^');
+			current += (needsMul ? 'E' : 'E');
 			updateDisplay(current);
 			break;
 		}
