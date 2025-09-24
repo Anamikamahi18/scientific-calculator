@@ -286,21 +286,11 @@ buttons.forEach(btn => {
 	});
 });
 
-// ...existing code...
-buttons.forEach(btn => {
-    btn.addEventListener('click', e => {
-        handleButton(btn.getAttribute('data-action'));
-        // Prevent Enter from re-clicking the focused button
-        btn.blur();
-    });
-});
-// ...existing code...
-
 // Keyboard support
 document.addEventListener('keydown', e => {
     if (!powered) {
+        // Allow turning back on via Enter or 'o'/'O'
         if (e.key === 'Enter' || e.key.toLowerCase() === 'o') {
-            e.preventDefault();
             handleButton('power');
         }
         return;
@@ -310,22 +300,13 @@ document.addEventListener('keydown', e => {
         'Backspace': 'C', 'Delete': 'AC',
         '(': '(', ')': ')', '^': '^'
     };
-
     if (e.key === 'Enter' || e.key === '=') {
-        // Stop the browser from "clicking" the focused button
-        e.preventDefault();
-        e.stopPropagation();
         handleButton('=');
-        // Also blur any focused element to avoid subsequent Enter triggering it
-        if (document.activeElement && document.activeElement.blur) {
-            document.activeElement.blur();
-        }
     } else if (keyMap[e.key]) {
-        e.preventDefault();
         handleButton(keyMap[e.key]);
     } else if (!isNaN(e.key)) {
-        e.preventDefault();
         handleButton(e.key);
     }
 });
-// ...existing code...
+
+// No disabling of buttons; interactions are ignored while powered off.
