@@ -152,13 +152,19 @@ function handleButton(action) {
     try {
         let expr = safeEval(current);
         let result = eval(expr);
-        
+
         if (!isFinite(result)) throw new Error('Invalid');
         lastResult = result;
         updateDisplay(result);
         updateHistory(current + ' = ' + result);
-        current = '' + result; // Keep the result in current
+        current = '' + result;
         justEvaluated = true;
+
+        // Prevent Enter from triggering a "click" on the focused button (e.g., '3')
+        const active = document.activeElement;
+        if (active && active.classList && active.classList.contains('btn')) {
+            active.blur();
+        }
     } catch {
         updateDisplay('Error');
         error = true;
@@ -289,24 +295,38 @@ buttons.forEach(btn => {
 // Keyboard support
 document.addEventListener('keydown', e => {
     if (!powered) {
-        // Allow turning back on via Enter or 'o'/'O'
         if (e.key === 'Enter' || e.key.toLowerCase() === 'o') {
+            e.preventDefault();
             handleButton('power');
         }
         return;
     }
+
+    if (e.key === 'Enter' || e.key === '=') {
+        e.preventDefault(); // stop keyboard "click" on focused button
+        handleButton('=');
+        return;
+    }
+
     const keyMap = {
         '+': '+', '-': '-', '*': '*', '/': '/', '.': '.',
         'Backspace': 'C', 'Delete': 'AC',
         '(': '(', ')': ')', '^': '^'
     };
-    if (e.key === 'Enter' || e.key === '=') {
-        handleButton('=');
-    } else if (keyMap[e.key]) {
+
+    if (keyMap[e.key]) {
+        e.preventDefault();
         handleButton(keyMap[e.key]);
     } else if (!isNaN(e.key)) {
+        e.preventDefault();
         handleButton(e.key);
     }
 });
 
-// No disabling of buttons; interactions are ignored while powered off.
+// Extra safety: suppress Enter-triggered click on keyup
+document.addEventListener('keyup', e => {
+    if (e.key === 'Enter' || e.key === '=') {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+});
