@@ -251,13 +251,22 @@ function handleButton(action) {
 			break;
 		}
 		case 'ans': {
-			if (lastResult === '') return; // Do nothing if no previous result
-			const ansVal = String(lastResult);
-			const needsMul = current && /[\d)πe!]$/.test(current);
-			current += (needsMul ? '*' : '') + ansVal;
-			updateDisplay(current);
-			break;
-		}
+            if (lastResult === '') return; // Do nothing if no previous result
+            const ansVal = String(lastResult);
+
+            if (justEvaluated) {
+                // Start a new calculation with Ans after an evaluation
+                current = ansVal;
+                justEvaluated = false;
+            } else {
+                // Insert Ans, with implicit multiplication if needed
+                const needsMul = current && /[\d)πe!]$/.test(current);
+                current += (needsMul ? '×' : '') + ansVal;
+            }
+
+            updateDisplay(current);
+            break;
+        }
 		
 	    // ...existing code...
 // ...existing code...
