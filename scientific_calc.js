@@ -234,10 +234,13 @@ function handleButton(action) {
 		}
 		
 	    default:
-			if (justEvaluated) {
-				current = '';
-                justEvaluated = false;
-			}
+    // Only clear after evaluation if the next input is a number or decimal
+    if (justEvaluated && (/^\d$/.test(action) || action === '.')) {
+        current = '';
+        justEvaluated = false;
+    } else if (justEvaluated) {
+        justEvaluated = false;
+    }
     if (action === '*') {
         current += '×';
     } else if (action === '/') {
