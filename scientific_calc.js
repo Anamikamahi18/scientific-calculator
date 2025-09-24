@@ -250,23 +250,25 @@ buttons.forEach(btn => {
 
 // Keyboard support
 document.addEventListener('keydown', e => {
-	if (!powered) {
-		// Allow turning back on via Enter or 'o'/'O'
-		if (e.key === 'Enter' || e.key.toLowerCase() === 'o') {
-			handleButton('power');
-		}
-		return;
-	}
-	const keyMap = {
-		'+': '+', '-': '-', '*': '*', '/': '/', '.': '.',
-		'Enter': '=', '=': '=', 'Backspace': 'C', 'Delete': 'AC',
-		'(': '(', ')': ')', '^': '^' 
-	};
-	if (keyMap[e.key]) {
-		handleButton(keyMap[e.key]);
-	} else if (!isNaN(e.key)) {
-		handleButton(e.key);
-	}
+    if (!powered) {
+        // Allow turning back on via Enter or 'o'/'O'
+        if (e.key === 'Enter' || e.key.toLowerCase() === 'o') {
+            handleButton('power');
+        }
+        return;
+    }
+    const keyMap = {
+        '+': '+', '-': '-', '*': '*', '/': '/', '.': '.',
+        'Backspace': 'C', 'Delete': 'AC',
+        '(': '(', ')': ')', '^': '^'
+    };
+    if (e.key === 'Enter' || e.key === '=') {
+        handleButton('=');
+    } else if (keyMap[e.key]) {
+        handleButton(keyMap[e.key]);
+    } else if (!isNaN(e.key)) {
+        handleButton(e.key);
+    }
 });
 
 // No disabling of buttons; interactions are ignored while powered off.
