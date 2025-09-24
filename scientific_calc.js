@@ -83,10 +83,11 @@ function safeEval(expr) {
 	expr = expr.replace(/(\d+)!/g, (m, n) => factorial(Number(n)));
 	// Powers: convert a^b to Math.pow(a,b), supporting parentheses/decimals/negatives
 	// Do multiple passes to catch nested patterns
-	for (let i = 0; i < 3; i++) {
-    // Only replace E notation when E/e is between two numbers (not after + or -)
+
+    // ...existing code...
+// E notation: only replace when E/e is actually present between numbers
 expr = expr.replace(/(\d+(\.\d+)?)[Ee](-?\d+)/g, (m, base, _, exp) => `${base}*Math.pow(10,${exp})`);
-}
+// ...existing code...
 	return expr;
 }
 
