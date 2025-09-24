@@ -254,31 +254,34 @@ function handleButton(action) {
 		}
 		
 	    // ...existing code...
+// ...existing code...
 default:
-            if (justEvaluated) {
-                // If it's an operator, continue with the result; if it's a number, start fresh
-                if (['+', '-', '×', '÷', '*', '/', '^', '('].includes(action)) {
-                    // Continue calculation with the previous result
-                    justEvaluated = false;
-                } else {
-                    // Start a new calculation
-                    current = '';
-                    justEvaluated = false;
-                }
-            }
-            if (action === '*') {
-                current += '×';
-            } else if (action === '/') {
-                current += '÷';
-            } else {
-                // Handle superscript conversion for numbers after ^
-                if (current.endsWith('^') && !isNaN(action)) {
-                    current = current.slice(0, -1) + toSuperscript(action);
-                } else {
-                    current += action;
-                }
-            }
-            updateDisplay(current);
+    if (justEvaluated) {
+        // If it's an operator, continue with the result; if it's a number, start fresh
+        if (['+', '-', '×', '÷', '*', '/', '^', '('].includes(action)) {
+            // Continue calculation with the previous result
+            justEvaluated = false;
+        } else {
+            // Start a new calculation - but don't clear current yet!
+            justEvaluated = false;
+            // Clear current only when we're about to add the new input
+            current = '';
+        }
+    }
+    
+    if (action === '*') {
+        current += '×';
+    } else if (action === '/') {
+        current += '÷';
+    } else {
+        // Handle superscript conversion for numbers after ^
+        if (current.endsWith('^') && !isNaN(action)) {
+            current = current.slice(0, -1) + toSuperscript(action);
+        } else {
+            current += action;
+        }
+    }
+    updateDisplay(current);
 	}
 }
 
