@@ -145,8 +145,8 @@ body {
 	}
 }
 
-/* For screens 560px or shorter, allow vertical scroll */
-@media (max-height: 560px) {
+/* For screens 470px or shorter, allow vertical scroll */
+@media (max-height: 470px) {
     html, body {
         height: auto;
         min-height: 100vh;
@@ -161,7 +161,7 @@ body {
 }
 
 /* Optional: For very small landscape screens, ensure scroll */
-@media (max-width: 700px) and (max-height: 560px) and (orientation: landscape) {
+@media (max-width: 700px) and (max-height: 470px) and (orientation: landscape) {
     html, body {
         height: auto;
         min-height: 100vh;
