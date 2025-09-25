@@ -185,9 +185,9 @@ function handleButton(action) {
 			memory = 0;
 			break;
 		case 'MR':
-			current += memory;
-			updateDisplay(current);
-			break;
+			current = '' + memory;
+            updateDisplay(current);
+            break;
 		case 'M+':
 			try {
 				memory += Number(eval(safeEval(current)));
