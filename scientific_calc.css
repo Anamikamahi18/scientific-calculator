@@ -142,3 +142,28 @@ body {
 		padding: clamp(4px, 1.2vh, 10px) 0;
 	}
 }
+
+@media (max-width: 600px) {
+  html, body {
+    height: auto;
+    min-height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+  body {
+    align-items: flex-start;
+    justify-content: flex-start;
+    min-height: 100vh;
+    padding: 0;
+  }
+  .calculator-container {
+    max-width: 100vw;
+    min-width: 0;
+    padding: 0;
+  }
+  .calculator {
+    min-width: 0;
+    box-sizing: border-box;
+    margin: 0 auto;
+  }
+}
