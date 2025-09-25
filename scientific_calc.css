@@ -135,18 +135,9 @@ body {
 	}
 }
 
-@media (max-height: 560px) {
-	.calculator-display {
-		font-size: clamp(0.95rem, 4vw, 1.4rem);
-		padding: clamp(6px, 1.4vh, 10px);
-	}
-	.btn {
-		padding: clamp(4px, 1.2vh, 10px) 0;
-	}
-}
 
-/* For screens 470px or shorter, allow vertical scroll */
-@media (max-height: 470px) {
+/* For screens 560px or shorter, allow vertical scroll */
+@media (max-height: 560px) {
     html, body {
         height: auto;
         min-height: 100vh;
@@ -155,13 +146,20 @@ body {
     body {
         align-items: flex-start;
     }
+	.calculator-display {
+		font-size: clamp(0.95rem, 4vw, 1.4rem);
+		padding: clamp(6px, 1.4vh, 10px);
+	}
+	.btn {
+		padding: clamp(4px, 1.2vh, 10px) 0;
+	}
     .calculator-container {
         padding-bottom: 24px; /* extra space for scroll */
     }
 }
 
 /* Optional: For very small landscape screens, ensure scroll */
-@media (max-width: 700px) and (max-height: 470px) and (orientation: landscape) {
+@media (max-width: 700px) and (max-height: 560px) and (orientation: landscape) {
     html, body {
         height: auto;
         min-height: 100vh;
