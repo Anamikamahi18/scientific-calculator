@@ -100,7 +100,12 @@ for (let i = 0; i < 3; i++) {
     });
 }
 
-// Replace visible Ans token with stored lastResult (if any)
+// Insert implicit multiplication between adjacent Ans tokens (AnsAns => Ans*Ans, AnsAnsAns => Ans*Ans*Ans)
+    expr = expr.replace(/Ans(?=Ans)/g, 'Ans*');
+
+    // Convert superscript notation back to ^ ...
+    // ...existing code continues...
+    // Replace visible Ans token with stored lastResult (if any)
     if (lastResult !== '') {
         expr = expr.replace(/\bAns\b/g, '(' + lastResult + ')');
     }
@@ -270,20 +275,20 @@ function handleButton(action) {
                 break;
             }
 
-            // If the current expression already ends with Ans, ignore
-            if (/Ans$/.test(current)) {
-                break;
-            }
+            const prev = current.slice(-1);
+            const needMul = /[\d)πe!⁹⁸⁷⁶⁵⁴³²¹⁰]/.test(prev);
 
-            const needsMul = /[\d)πe!⁹⁸⁷⁶⁵⁴³²¹⁰]$/.test(current); // preceding token needs multiplication
-            if (current === '') {
-                current = 'Ans';
+            if (/Ans$/.test(current)) {
+                // Append directly to get AnsAns (implicit multiplication handled in safeEval)
+                current += 'Ans';
+            } else if (current === '' || /[+\-×÷^(]$/.test(prev)) {
+                current += 'Ans';
             } else {
-                current += (needsMul ? '×Ans' : 'Ans');
+                current += needMul ? '×Ans' : 'Ans';
             }
-			updateDisplay(current);
-			break;
-		}
+            updateDisplay(current);
+            break;
+        }
 		
 
 default:
