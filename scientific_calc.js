@@ -99,6 +99,12 @@ for (let i = 0; i < 3; i++) {
         return `Math.pow(${base},${exp})`;
     });
 }
+
+// Replace visible Ans token with stored lastResult (if any)
+    if (lastResult !== '') {
+        expr = expr.replace(/\bAns\b/g, '(' + lastResult + ')');
+    }
+
 // E notation: only replace when E/e is actually present between numbers
 expr = expr.replace(/(\d+(\.\d+)?)[Ee](-?\d+)/g, (m, base, _, exp) => `${base}*Math.pow(10,${exp})`);
 // ...existing code...
@@ -251,40 +257,50 @@ function handleButton(action) {
 			break;
 		}
 		case 'ans': {
-            if (lastResult === '') return; // Do nothing if no previous result
-            const ansVal = String(lastResult);
+            // Desired behavior:
+            // 1. After evaluation: start a NEW expression with 'Ans'
+            // 2. Avoid creating AnsAns (ignore repeated presses)
+            // 3. Insert implicit * only if in the middle of an expression and previous char is a number/constant/factorial/closing paren
+            if (lastResult === '') break; // nothing to recall yet
 
             if (justEvaluated) {
-                // Start a new calculation with Ans after an evaluation
-                current = ansVal;
+                current = 'Ans';
                 justEvaluated = false;
-            } else {
-                // Insert Ans, with implicit multiplication if needed
-                const needsMul = current && /[\d)πe!]$/.test(current);
-                current += (needsMul ? '×' : '') + ansVal;
+                updateDisplay(current);
+                break;
             }
 
-            updateDisplay(current);
-            break;
-        }
+            // If the current expression already ends with Ans, ignore
+            if (/Ans$/.test(current)) {
+                break;
+            }
+
+            const needsMul = /[\d)πe!⁹⁸⁷⁶⁵⁴³²¹⁰]$/.test(current); // preceding token needs multiplication
+            if (current === '') {
+                current = 'Ans';
+            } else {
+                current += (needsMul ? '×Ans' : 'Ans');
+            }
+			updateDisplay(current);
+			break;
+		}
 		
-	    // ...existing code...
-// ...existing code...
+
 default:
     if (justEvaluated) {
-        // If it's a number/decimal, start fresh; if it's an operator, continue
-        if (!isNaN(action) || action === '.') {
-            current = ''; // Clear for new calculation
+        // Start fresh only if entering a number/decimal/Ans; continue if operator
+        if (!isNaN(action) || action === '.' ) {
+            current = '';
         }
         justEvaluated = false;
     }
-    
+
     if (action === '*') {
         current += '×';
     } else if (action === '/') {
         current += '÷';
     } else {
-        // Handle superscript conversion for numbers after ^
+        // Superscript handling after ^
         if (current.endsWith('^') && !isNaN(action)) {
             current = current.slice(0, -1) + toSuperscript(action);
         } else {
@@ -292,7 +308,7 @@ default:
         }
     }
     updateDisplay(current);
-	}
+}
 }
 
 buttons.forEach(btn => {
