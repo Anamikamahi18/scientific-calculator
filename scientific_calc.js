@@ -59,12 +59,8 @@ expr = expr.replace(/sin⁻¹(\s*)(\(?)/g, 'arcsin$1$2')
            .replace(/cos⁻¹(\s*)(\(?)/g, 'arccos$1$2')
            .replace(/tan⁻¹(\s*)(\(?)/g, 'arctan$1$2');
 
-// Step 2: Convert remaining superscript minus to reciprocal (x⁻¹ → x^(-1)), but NOT for trig inverses
-expr = expr.replace(/([a-zA-Z0-9πe\)\d]+)⁻¹/g, (m, base) => {
-    // If base ends with 'sin', 'cos', or 'tan', skip (already handled)
-    if (/sin$|cos$|tan$/.test(base)) return m;
-    return base + '^(-1)';
-});
+// Only convert x⁻¹ to x^(-1) if x is a number, variable, or parenthesis group
+expr = expr.replace(/((?:\([^()]*\)|[a-zA-Z0-9πe]+))⁻¹/g, '$1^(-1)');
 	// Normalize Unicode minus (U+2212) to ASCII hyphen
 	expr = expr.replace(/\u2212/g, '-');
 	// Remove all whitespace to avoid parsing issues (e.g., 2 ^ ( -1 ))
