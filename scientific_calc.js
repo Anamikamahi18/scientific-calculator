@@ -91,7 +91,7 @@ expr = expr.replace(/((?:\([^()]*\)|[a-zA-Z0-9πe]+))⁻¹/g, (m, base) => {
 	});
 	// Fix for cbrt and sqrt with possible whitespace or nested expressions
 	// Cube root: match ³√ followed by (expression) or a number/constant
-    expr = expr.replace(/³√\s*(\((?:[^()]*)\)|[πe\d\.\+\-\*\/\^]+)/g, (m, arg) => `Math.cbrt(${arg})`);
+    expr = expr.replace(/³√\s*(\([^)]*\)|\d+(\.\d+)?)/g, (m, arg) => `Math.cbrt(${arg})`);
 	expr = expr.replace(/√\s*(\([^)]*\)|\d+(\.\d+)?)/g, (m, arg) => `Math.sqrt(${arg})`);
 	// Log replacements
 	expr = expr.replace(/log\(/g, 'Math.log10(');
