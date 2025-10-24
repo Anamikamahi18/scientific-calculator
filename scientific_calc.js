@@ -65,34 +65,33 @@ expr = expr.replace(/((?:\([^()]*\)|[a-zA-Z0-9πe]+))⁻¹/g, (m, base) => {
     if (/arcsin$|arccos$|arctan$/.test(base)) return m;
     return `${base}^(-1)`;
 });
-	// Normalize Unicode minus (U+2212) to ASCII hyphen
-	expr = expr.replace(/\u2212/g, '-');
-	// Remove all whitespace to avoid parsing issues (e.g., 2 ^ ( -1 ))
-	expr = expr.replace(/\s+/g, '');
-	// If functions are written without parentheses (e.g., sin30, log10), wrap immediate numeric/constant arg
-	// Only wrap if not already followed by an opening parenthesis
-	expr = expr.replace(/\b(sin|cos|tan|arcsin|arccos|arctan|log|ln)(π|e|-?\d*\.?\d+)(?!\()/g,
-    (m, fn, arg) => `${fn}(${arg})`);
-	// Replace trigonometric functions with degree/radian support
-	expr = expr.replace(/\b(sin|cos|tan)\(([^\)]+)\)/g, (m, fn, arg) => {
-		if (isDegree) {
-			return `Math.${fn}((${arg})*Math.PI/180)`;
-		} else {
-			return `Math.${fn}(${arg})`;
-		}
-	});
-	expr = expr.replace(/(arcsin|arccos|arctan)\(([^\)]+)\)/g, (m, fn, arg) => {
-		let jsFn = fn.replace('arc', 'a');
-		if (isDegree) {
-			return `(Math.${jsFn}(${arg})*180/Math.PI)`;
-		} else {
-			return `Math.${jsFn}(${arg})`;
-		}
-	});
-	// Fix for cbrt and sqrt with possible whitespace or nested expressions
-	// Cube root: match ³√ followed by (expression) or a number/constant
-    expr = expr.replace(/³√\s*(\([^()]*\)|[πe\d.+\-*/^]+)/g, (m, arg) => `Math.cbrt(${arg})`);
-	expr = expr.replace(/√\s*(\([^)]*\)|\d+(\.\d+)?)/g, (m, arg) => `Math.sqrt(${arg})`);
+
+// Normalize minus and remove spaces
+expr = expr.replace(/\u2212/g, '-').replace(/\s+/g, '');
+
+// Allow sin30 → sin(30) etc.
+expr = expr.replace(/\b(sin|cos|tan|arcsin|arccos|arctan|log|ln)(π|e|-?\d*\.?\d+)(?!\()/g,
+    (m, fn, arg) => `${fn}(${arg})`
+);
+
+// Trig with degree/radian mode
+expr = expr.replace(/\b(sin|cos|tan)\(([^\)]+)\)/g, (m, fn, arg) => {
+    return isDegree
+        ? `Math.${fn}((${arg})*Math.PI/180)`
+        : `Math.${fn}(${arg})`;
+});
+
+expr = expr.replace(/(arcsin|arccos|arctan)\(([^\)]+)\)/g, (m, fn, arg) => {
+    const jsFn = fn.replace('arc', 'a');
+    return isDegree
+        ? `(Math.${jsFn}(${arg})*180/Math.PI)`
+        : `Math.${jsFn}(${arg})`;
+});
+
+// √ and ³√ with numbers or parentheses
+expr = expr.replace(/³√\s*(\([^()]*\)|[πe\d.+\-*/^]+)/g, (m, arg) => `Math.cbrt(${arg})`);
+expr = expr.replace(/√\s*(\([^()]*\)|[πe\d.+\-*/^]+)/g, (m, arg) => `Math.sqrt(${arg})`);
+
 	// Log replacements
 	expr = expr.replace(/log\(/g, 'Math.log10(');
 	expr = expr.replace(/ln\(/g, 'Math.log(');
