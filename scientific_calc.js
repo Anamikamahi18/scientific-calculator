@@ -54,13 +54,17 @@ function safeEval(expr) {
                    }
                    return '^' + normal;
                });
-    // Step 1: Convert inverse trig pretty tokens to canonical names
+// Step 1: Convert inverse trig pretty tokens to canonical names
 expr = expr.replace(/sin⁻¹(\s*)(\(?)/g, 'arcsin$1$2')
            .replace(/cos⁻¹(\s*)(\(?)/g, 'arccos$1$2')
            .replace(/tan⁻¹(\s*)(\(?)/g, 'arctan$1$2');
 
-// Only convert x⁻¹ to x^(-1) if x is a number, variable, or parenthesis group
-expr = expr.replace(/((?:\([^()]*\)|[a-zA-Z0-9πe]+))⁻¹/g, '$1^(-1)');
+// Step 2: Convert remaining superscript minus to reciprocal (x⁻¹ → x^(-1)), but NOT for trig inverses
+expr = expr.replace(/((?:\([^()]*\)|[a-zA-Z0-9πe]+))⁻¹/g, (m, base) => {
+    // If base ends with 'arcsin', 'arccos', or 'arctan', skip
+    if (/arcsin$|arccos$|arctan$/.test(base)) return m;
+    return base + '^(-1)';
+});
 	// Normalize Unicode minus (U+2212) to ASCII hyphen
 	expr = expr.replace(/\u2212/g, '-');
 	// Remove all whitespace to avoid parsing issues (e.g., 2 ^ ( -1 ))
