@@ -60,7 +60,7 @@ function safeEval(expr) {
                .replace(/tan⁻¹(\s*)(\(?)/g, 'arctan$1$2');
 
     // Only convert to reciprocal if not part of a trig function
-    expr = expr.replace(/(?<!sin|cos|tan)([a-zA-Z0-9πe\)\d]+)⁻¹/g, '$1^(-1)');
+    expr = expr.replace(/((?<!sin)(?<!cos)(?<!tan)[a-zA-Z0-9πe\)\d]+)⁻¹/g, '$1^(-1)');
 	// Normalize Unicode minus (U+2212) to ASCII hyphen
 	expr = expr.replace(/\u2212/g, '-');
 	// Remove all whitespace to avoid parsing issues (e.g., 2 ^ ( -1 ))
