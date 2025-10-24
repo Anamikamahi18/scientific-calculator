@@ -59,11 +59,11 @@ expr = expr.replace(/sin⁻¹(\s*)(\(?)/g, 'arcsin$1$2')
            .replace(/cos⁻¹(\s*)(\(?)/g, 'arccos$1$2')
            .replace(/tan⁻¹(\s*)(\(?)/g, 'arctan$1$2');
 
-// Step 2: Convert remaining superscript minus to reciprocal (x⁻¹ → x^(-1)), but NOT for trig inverses
+// Step 2: Convert superscript minus to reciprocal (x⁻¹ → x^(-1)),
+// but skip for trig inverses (arcsin, arccos, arctan)
 expr = expr.replace(/((?:\([^()]*\)|[a-zA-Z0-9πe]+))⁻¹/g, (m, base) => {
-    // If base ends with 'arcsin', 'arccos', or 'arctan', skip
     if (/arcsin$|arccos$|arctan$/.test(base)) return m;
-    return base + '^(-1)';
+    return `${base}^(-1)`;
 });
 	// Normalize Unicode minus (U+2212) to ASCII hyphen
 	expr = expr.replace(/\u2212/g, '-');
@@ -91,7 +91,7 @@ expr = expr.replace(/((?:\([^()]*\)|[a-zA-Z0-9πe]+))⁻¹/g, (m, base) => {
 	});
 	// Fix for cbrt and sqrt with possible whitespace or nested expressions
 	// Cube root: match ³√ followed by (expression) or a number/constant
-    expr = expr.replace(/³√\s*(\([^)]*\)|\d+(\.\d+)?)/g, (m, arg) => `Math.cbrt(${arg})`);
+    expr = expr.replace(/³√\s*(\([^()]*\)|[πe\d.+\-*/^]+)/g, (m, arg) => `Math.cbrt(${arg})`);
 	expr = expr.replace(/√\s*(\([^)]*\)|\d+(\.\d+)?)/g, (m, arg) => `Math.sqrt(${arg})`);
 	// Log replacements
 	expr = expr.replace(/log\(/g, 'Math.log10(');
