@@ -73,9 +73,10 @@ function safeEval(expr) {
     expr = expr.replace(/\u2212/g, '-').replace(/\s+/g, '');
 
     // √ and ³√ (cube root)
-// Robust cube-root handling: supports ³√(expr), ³√8, ³√Ans, ³√Math.PI, ³√variable, ³√1E3, etc.
-expr = expr.replace(/³√\s*(\([^()]*\)|Ans|Math\.[A-Za-z_]\w*|[A-Za-z_]\w*|\d+(\.\d+)?([eE][+-]?\d+)?)/g,
-                    (m, arg) => `Math.cbrt(${arg})`);
+    // Corrected cube-root handling (supports numbers, parentheses, Ans, π, e, etc.)
+    expr = expr.replace(/³√\s*(\([^()]*\)|Ans|π|e|Math\.[A-Za-z_]\w*|[A-Za-z_]\w*|\d+(\.\d+)?([eE][+-]?\d+)?)/g,
+    (match, arg) => `Math.cbrt(${arg})`);
+
 
     expr = expr.replace(/√\s*(\([^()]*\)|[πe\d.+\-*/^]+)/g, (_, arg) => `Math.sqrt(${arg})`);
 
