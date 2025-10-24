@@ -38,88 +38,84 @@ function updateHistory(val) {
 }
 
 function safeEval(expr) {
-	// Replace constants
-	expr = expr.replace(/π/g, Math.PI)
-			   .replace(/e/g, Math.E);
-    expr = expr.replace(/×/g, '*')
-	           .replace(/÷/g, '/');
-			   // Convert superscript notation back to ^ for evaluation
+    // Constants
+    expr = expr.replace(/π/g, Math.PI)
+               .replace(/e/g, Math.E);
+
+    // Multiplication and division signs
+    expr = expr.replace(/×/g, '*').replace(/÷/g, '/');
+
+    // Superscripts → ^
     expr = expr.replace(/²/g, '^2')
                .replace(/³/g, '^3')
-               .replace(/([⁰¹²³⁴⁵⁶⁷⁸⁹]+)/g, (match) => {
-                   const superscriptMap = {'⁰':'0','¹':'1','²':'2','³':'3','⁴':'4','⁵':'5','⁶':'6','⁷':'7','⁸':'8','⁹':'9'};
-                   let normal = '';
-                   for (let char of match) {
-                       normal += superscriptMap[char] || char;
-                   }
-                   return '^' + normal;
+               .replace(/([⁰¹²³⁴⁵⁶⁷⁸⁹]+)/g, match => {
+                   const map = {'⁰':'0','¹':'1','²':'2','³':'3','⁴':'4','⁵':'5','⁶':'6','⁷':'7','⁸':'8','⁹':'9'};
+                   return '^' + match.split('').map(ch => map[ch] || ch).join('');
                });
-// Step 1: Convert inverse trig pretty tokens to canonical names
-expr = expr.replace(/sin⁻¹(\s*)(\(?)/g, 'arcsin$1$2')
-           .replace(/cos⁻¹(\s*)(\(?)/g, 'arccos$1$2')
-           .replace(/tan⁻¹(\s*)(\(?)/g, 'arctan$1$2');
 
-// Step 2: Convert superscript minus to reciprocal (x⁻¹ → x^(-1)),
-// but skip for trig inverses (arcsin, arccos, arctan)
-expr = expr.replace(/((?:\([^()]*\)|[a-zA-Z0-9πe]+))⁻¹/g, (m, base) => {
-    if (/arcsin$|arccos$|arctan$/.test(base)) return m;
-    return `${base}^(-1)`;
-});
+    // Step 1: Convert inverse trig (sin⁻¹ etc.)
+    expr = expr.replace(/sin⁻¹/g, 'arcsin')
+               .replace(/cos⁻¹/g, 'arccos')
+               .replace(/tan⁻¹/g, 'arctan');
 
-// Normalize minus and remove spaces
-expr = expr.replace(/\u2212/g, '-').replace(/\s+/g, '');
-
-// Allow sin30 → sin(30) etc.
-expr = expr.replace(/\b(sin|cos|tan|arcsin|arccos|arctan|log|ln)(π|e|-?\d*\.?\d+)(?!\()/g,
-    (m, fn, arg) => `${fn}(${arg})`
-);
-
-// Trig with degree/radian mode
-expr = expr.replace(/\b(sin|cos|tan)\(([^\)]+)\)/g, (m, fn, arg) => {
-    return isDegree
-        ? `Math.${fn}((${arg})*Math.PI/180)`
-        : `Math.${fn}(${arg})`;
-});
-
-expr = expr.replace(/(arcsin|arccos|arctan)\(([^\)]+)\)/g, (m, fn, arg) => {
-    const jsFn = fn.replace('arc', 'a');
-    return isDegree
-        ? `(Math.${jsFn}(${arg})*180/Math.PI)`
-        : `Math.${jsFn}(${arg})`;
-});
-
-// √ and ³√ with numbers or parentheses
-expr = expr.replace(/³√\s*(\([^()]*\)|[πe\d.+\-*/^]+)/g, (m, arg) => `Math.cbrt(${arg})`);
-expr = expr.replace(/√\s*(\([^()]*\)|[πe\d.+\-*/^]+)/g, (m, arg) => `Math.sqrt(${arg})`);
-
-	// Log replacements
-	expr = expr.replace(/log\(/g, 'Math.log10(');
-	expr = expr.replace(/ln\(/g, 'Math.log(');
-	// Factorial
-	expr = expr.replace(/(\d+)!/g, (m, n) => factorial(Number(n)));
-	// Powers: convert a^b to Math.pow(a,b), supporting parentheses/decimals/negatives
-	// Do multiple passes to catch nested patterns
-for (let i = 0; i < 3; i++) {
-    expr = expr.replace(/(\([^)]+\)|[\d.]+|\w+)\^(\([^)]+\)|[\d.-]+)/g, (match, base, exp) => {
-        return `Math.pow(${base},${exp})`;
+    // Step 2: Reciprocal (x⁻¹ → x^(-1)) except trig inverses
+    expr = expr.replace(/((?:\([^()]*\)|[a-zA-Z0-9πe]+))⁻¹/g, (m, base) => {
+        if (/arcsin$|arccos$|arctan$/.test(base)) return m;
+        return `${base}^(-1)`;
     });
-}
 
-// Insert implicit multiplication between adjacent Ans tokens (AnsAns => Ans*Ans, AnsAnsAns => Ans*Ans*Ans)
-    expr = expr.replace(/Ans(?=Ans)/g, 'Ans*');
+    // Normalize minus and remove spaces
+    expr = expr.replace(/\u2212/g, '-').replace(/\s+/g, '');
 
-    // Convert superscript notation back to ^ ...
-    // ...existing code continues...
-    // Replace visible Ans token with stored lastResult (if any)
+    // Allow sin30 → sin(30)
+    expr = expr.replace(/\b(sin|cos|tan|arcsin|arccos|arctan|log|ln)(π|e|-?\d*\.?\d+)(?!\()/g,
+        (m, fn, arg) => `${fn}(${arg})`
+    );
+
+    // √ and ³√ support
+    expr = expr.replace(/³√\s*(\([^()]*\)|[πe\d.+\-*/^]+)/g, (m, arg) => `Math.cbrt(${arg})`);
+    expr = expr.replace(/√\s*(\([^()]*\)|[πe\d.+\-*/^]+)/g, (m, arg) => `Math.sqrt(${arg})`);
+
+    // Trig (degree/radian mode)
+    expr = expr.replace(/\b(sin|cos|tan)\(([^\)]+)\)/g, (m, fn, arg) => {
+        return isDegree
+            ? `Math.${fn}((${arg})*Math.PI/180)`
+            : `Math.${fn}(${arg})`;
+    });
+
+    expr = expr.replace(/(arcsin|arccos|arctan)\(([^\)]+)\)/g, (m, fn, arg) => {
+        const jsFn = fn.replace('arc', 'a');
+        return isDegree
+            ? `(Math.${jsFn}(${arg})*180/Math.PI)`
+            : `Math.${jsFn}(${arg})`;
+    });
+
+    // Logarithms
+    expr = expr.replace(/log\(/g, 'Math.log10(')
+               .replace(/ln\(/g, 'Math.log(');
+
+    // Factorial
+    expr = expr.replace(/(\d+)!/g, (m, n) => factorial(Number(n)));
+
+    // Powers (a^b)
+    for (let i = 0; i < 3; i++) {
+        expr = expr.replace(/(\([^)]+\)|[\d.]+|\w+)\^(\([^)]+\)|[\d.-]+)/g,
+            (match, base, exp) => `Math.pow(${base},${exp})`);
+    }
+
+    // Handle Ans
     if (lastResult !== '') {
         expr = expr.replace(/\bAns\b/g, '(' + lastResult + ')');
     }
 
-// E notation: only replace when E/e is actually present between numbers
-expr = expr.replace(/(\d+(\.\d+)?)[Ee](-?\d+)/g, (m, base, _, exp) => `${base}*Math.pow(10,${exp})`);
-// ...existing code...
-	return expr;
+    // Scientific notation (1E3 → 1*Math.pow(10,3))
+    expr = expr.replace(/(\d+(\.\d+)?)[Ee](-?\d+)/g,
+        (m, base, _, exp) => `${base}*Math.pow(10,${exp})`
+    );
+
+    return expr;
 }
+
 
 // Helper function to convert numbers to superscript
 function toSuperscript(num) {
