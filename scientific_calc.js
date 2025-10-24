@@ -54,12 +54,13 @@ function safeEval(expr) {
                    }
                    return '^' + normal;
                });
-    // Pretty inverse trig tokens to canonical names before reciprocal mapping
-    expr = expr.replace(/sin⁻¹/g, 'arcsin')
-	    .replace(/cos⁻¹/g, 'arccos')
-	    .replace(/tan⁻¹/g, 'arctan');
-	// Pretty reciprocal token to evaluable form
-	expr = expr.replace(/⁻¹/g, '^(-1)');
+    // Convert inverse trig pretty tokens to canonical names
+    expr = expr.replace(/sin⁻¹(\s*)(\(?)/g, 'arcsin$1$2')
+               .replace(/cos⁻¹(\s*)(\(?)/g, 'arccos$1$2')
+               .replace(/tan⁻¹(\s*)(\(?)/g, 'arctan$1$2');
+
+    // Only convert remaining superscript minus to reciprocal if it's not part of a trig function
+    expr = expr.replace(/([a-zA-Z0-9πe\)\d]+)⁻¹/g, '$1^(-1)');
 	// Normalize Unicode minus (U+2212) to ASCII hyphen
 	expr = expr.replace(/\u2212/g, '-');
 	// Remove all whitespace to avoid parsing issues (e.g., 2 ^ ( -1 ))
